@@ -48,6 +48,18 @@
 </div>
 {% endmacro %}
 
+{% macro habit_card(habit, class='') %}
+{% call card(class='mb-4') %}
+<a class="h3" href="{{ url_for('habit', id_=habit.id) }}">{{ habit.description }}</a>
+<div class="small fst-italic text-muted">{{ habit.date_created.strftime('%F') }}</div>
+<div class="mt-3">
+  <a class="bi bi-pencil me-1" onclick="toggleDiv('update' + {{ habit.id }})"></a>
+  <a class="bi bi-trash text-danger" onclick="toggleDiv('delete' + {{ habit.id }})"></a>
+  <a class="font-custom text-danger" style="display:none" id="delete{{ habit.id }}" onclick="habitDelete({{ habit.id }})">delete?</a>
+</div>
+{% endcall %}
+{% endmacro %}
+
 <!--FORMS-->
 {% macro login_form() %}
 <form method="POST" action="{{ url_for('login') }}">

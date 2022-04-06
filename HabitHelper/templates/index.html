@@ -5,6 +5,11 @@
 <title>HabitHelper</title>
 {% if not current_user.is_anonymous %}
 {{ macros.habit_create_form() }}
+<div class="row">
+  {% for i in current_user.get_habits() %}
+  {{ macros.habit_card(i) }}
+  {% endfor %}
+</div>
 {% else %}
 <div style="font-size:3em" class="text-center opacity-25">
   <div class="bi bi-person-fill" style="font-size:2.5em"></div>
