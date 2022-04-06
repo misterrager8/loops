@@ -22,7 +22,7 @@
         <li class="nav-item"><a class="nav-link bi bi-search" onclick="toggleDiv('search')"></a></li>
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" data-bs-target="#userDD" data-bs-toggle="dropdown">
-            {% if not current_user.is_anonymous %}<span class="nav-item me-2">{{ current_user.username }}</span>{% endif %}
+            {% if not current_user.is_anonymous %}<span class="nav-item">{{ current_user.username }}</span>{% endif %}
             <i class="bi bi-person-fill"></i>
           </a>
           {% call macros.dropdown('userDD', class='dropdown-menu-end text-center') %}
