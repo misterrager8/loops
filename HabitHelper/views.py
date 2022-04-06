@@ -1,4 +1,5 @@
 import datetime
+import random
 
 from flask import render_template, current_app, request, url_for
 from flask_login import login_user, logout_user, current_user
@@ -90,6 +91,7 @@ def delete_account():
 def habit_create():
     habit_ = Habit(description=request.form["description"],
                    date_created=datetime.datetime.now(),
+                   color="#{:06x}".format(random.randint(0, 0xFFFFFF)),
                    frequency=request.form["frequency"],
                    user=current_user.id)
     database.add(habit_)

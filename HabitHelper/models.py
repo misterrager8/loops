@@ -26,6 +26,7 @@ class Habit(db.Model):
 
     id = Column(Integer, primary_key=True)
     description = Column(Text)
+    color = Column(Text)
     frequency = Column(Text, default="Daily")
     date_created = Column(DateTime)
     user = Column(Integer, ForeignKey("users.id"))
