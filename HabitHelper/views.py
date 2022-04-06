@@ -88,7 +88,10 @@ def delete_account():
 
 @current_app.route("/habit_create", methods=["POST"])
 def habit_create():
-    habit_ = Habit(description=request.form["description"], date_created=datetime.datetime.now(), user=current_user.id)
+    habit_ = Habit(description=request.form["description"],
+                   date_created=datetime.datetime.now(),
+                   frequency=request.form["frequency"],
+                   user=current_user.id)
     database.add(habit_)
 
     return redirect(request.referrer)

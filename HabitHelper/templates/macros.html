@@ -98,6 +98,11 @@
 {% macro habit_create_form(class='') %}
 <form class="input-group {{ class }}" onsubmit="event.preventDefault(); habitCreate();">
   {{ input(id='description', placeholder='New Habit') }}
+  <select class="input-custom font-custom" id="frequency">
+    <option value="Daily">Daily</option>
+    <option value="Weekly">Weekly</option>
+    <option value="Monthly">Monthly</option>
+  </select>
   <button class="btn-custom" type="submit"><i class="bi bi-plus-lg"></i></button>
 </form>
 {% endmacro %}

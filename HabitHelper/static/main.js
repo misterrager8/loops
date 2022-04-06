@@ -10,7 +10,8 @@ function refreshPage() {
 function habitCreate() {
     $('#spinner').show();
     $.post('habit_create', {
-        description: $('#description').val()
+        description: $('#description').val(),
+        frequency: $('#frequency').val()
     }, function(data) {
         refreshPage();
     });
