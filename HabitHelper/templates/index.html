@@ -3,4 +3,14 @@
 
 {% block body %}
 <title>HabitHelper</title>
+{% if not current_user.is_anonymous %}
+{% else %}
+<div style="font-size:3em" class="text-center opacity-25">
+  <div class="bi bi-person-fill" style="font-size:2.5em"></div>
+  <span>
+    <a data-bs-toggle="modal" data-bs-target="#loginModal" class="fw-bold">Log In</a> or
+    <a data-bs-toggle="modal" data-bs-target="#signupModal" class="fw-bold">Sign Up</a>
+  </span>
+</div>
+{% endif %}
 {% endblock %}
