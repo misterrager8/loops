@@ -21,7 +21,8 @@ function habitUpdate(habitId) {
     $('#spinner').show();
     $.post('habit_update', {
         id_: habitId,
-        description: $('#description').val()
+        description: $('#description' + habitId).val(),
+        frequency: $('#frequency' + habitId).val()
     }, function(data) {
         refreshPage();
     });

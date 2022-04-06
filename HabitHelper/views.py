@@ -100,7 +100,8 @@ def habit_create():
 @current_app.route("/habit_update", methods=["POST"])
 def habit_update():
     habit_: Habit = database.get(Habit, int(request.form["id_"]))
-    habit_.description = request.form["id_"]
+    habit_.description = request.form["description"]
+    habit_.frequency = request.form["frequency"]
     database.update()
 
     return redirect(request.referrer)

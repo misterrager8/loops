@@ -57,7 +57,7 @@
   <a class="bi bi-pencil me-1" onclick="toggleDiv('update' + {{ habit.id }})"></a>
   <a class="bi bi-trash text-danger" onclick="toggleDiv('delete' + {{ habit.id }})"></a>
   <a class="font-custom text-danger" style="display:none" id="delete{{ habit.id }}" onclick="habitDelete({{ habit.id }})">delete?</a>
-  <div class="mt-3" id="update{{ habit.id }}" style="display:none">habit_update_form(habit)</div>
+  <div class="mt-3" id="update{{ habit.id }}" style="display:none">{{ habit_update_form(habit) }}</div>
 </div>
 {% endcall %}
 {% endmacro %}
@@ -104,6 +104,19 @@
     <option value="Monthly">Monthly</option>
   </select>
   <button class="btn-custom" type="submit"><i class="bi bi-plus-lg"></i></button>
+</form>
+{% endmacro %}
+
+{% macro habit_update_form(habit, class='') %}
+{% set freqs = ['Daily', 'Weekly', 'Monthly'] %}
+<form class="input-group {{ class }}" onsubmit="event.preventDefault(); habitUpdate({{ habit.id }});">
+  {{ input(id='description%s' % habit.id, value=habit.description) }}
+  <select class="input-custom font-custom" id="frequency{{ habit.id }}">
+    {% for i in freqs %}
+    <option value="{{ i }}" {% if i== habit.frequency %}selected{% endif %}>{{ i }}</option>
+    {% endfor %}
+  </select>
+  <button class="btn-custom" type="submit"><i class="bi bi-pencil"></i></button>
 </form>
 {% endmacro %}
 
