@@ -81,6 +81,13 @@
 </div>
 {% endmacro %}
 
+{% macro habit_create_form(class='') %}
+<form class="input-group {{ class }}" onsubmit="event.preventDefault(); habitCreate();">
+  {{ input(id='description', placeholder='New Habit') }}
+  <button class="btn-custom" type="submit"><i class="bi bi-plus-lg"></i></button>
+</form>
+{% endmacro %}
+
 {% macro editor(class='') %}
 <form onsubmit="event.preventDefault()" class="{{ class }}">
   <div class="py-3" style="font-size: 1.5em">
