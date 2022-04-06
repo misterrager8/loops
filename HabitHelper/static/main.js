@@ -8,6 +8,7 @@ function refreshPage() {
 }
 
 function habitCreate() {
+    $('#spinner').show();
     $.post('habit_create', {
         description: $('#description').val()
     }, function(data) {
@@ -16,6 +17,7 @@ function habitCreate() {
 }
 
 function habitUpdate(habitId) {
+    $('#spinner').show();
     $.post('habit_update', {
         id_: habitId,
         description: $('#description').val()
@@ -25,6 +27,7 @@ function habitUpdate(habitId) {
 }
 
 function habitDelete(habitId) {
+    $('#spinner').show();
     $.get('habit_delete', {
         id_: habitId,
         description: $('#description').val()
