@@ -53,12 +53,27 @@
 <span class="bi bi-circle-fill me-1" style="color: {{ habit.color }}"></span>
 <a class="font-custom" href="{{ url_for('habit', id_=habit.id) }}">{{ habit.description }}</a>
 <span class="badge-custom float-end">{{ habit.frequency }}</span>
-<div class="small fst-italic text-muted">{{ habit.date_created.strftime('%B %-d') }}</div>
+<div class="small fst-italic text-muted mt-3">{{ '%s time(s) since %s' % (habit.get_entries().count(), habit.date_created.strftime('%B %-d')) }}</div>
 <div class="mt-3">
+  <a class="bi bi-plus-circle text-success me-1" onclick="entryCreate({{ habit.id }})"></a>
   <a class="bi bi-pencil me-1" onclick="toggleDiv('update' + {{ habit.id }})"></a>
   <a class="bi bi-trash text-danger" onclick="toggleDiv('delete' + {{ habit.id }})"></a>
   <a class="font-custom text-danger" style="display:none" id="delete{{ habit.id }}" onclick="habitDelete({{ habit.id }})">delete?</a>
   <div class="mt-3" id="update{{ habit.id }}" style="display:none">{{ habit_update_form(habit) }}</div>
+</div>
+{% endcall %}
+{% endmacro %}
+
+{% macro entry_card(entry, class='') %}
+{% call card(size=3, class='mb-4') %}
+<p class="font-custom">{{ entry.date_created.strftime('%B %-d') }}</p>
+<a href="{{ url_for('habit', id_=entry.habit) }}">
+  <span class="bi bi-circle-fill me-2" style="color:{{ entry.habits.color }}"></span>
+  <span class="font-custom">{{ entry.habits.description }}</span>
+</a>
+<div class="mt-3">
+  <a class="bi bi-trash text-danger" onclick="toggleDiv('delete' + {{ entry.id }})"></a>
+  <a class="font-custom text-danger" style="display:none" id="delete{{ entry.id }}" onclick="entryDelete({{ entry.id }})">delete?</a>
 </div>
 {% endcall %}
 {% endmacro %}

@@ -8,4 +8,9 @@
   <span class="badge-custom">{{ habit_.frequency }}</span>
   <p class="fst-italic text-muted mt-2">{{ habit_.date_created.strftime('%B %-d') }}</p>
 </div>
+<div class="row">
+  {% for i in habit_.entries %}
+  {{ macros.entry_card(i) }}
+  {% endfor %}
+</div>
 {% endblock %}

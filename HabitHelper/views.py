@@ -8,7 +8,7 @@ from werkzeug.utils import redirect
 
 from HabitHelper import login_manager
 from HabitHelper.ctrla import Database
-from HabitHelper.models import User, Habit
+from HabitHelper.models import User, Habit, Entry
 
 database = Database()
 
@@ -119,6 +119,26 @@ def habit():
 @current_app.route("/habit_delete")
 def habit_delete():
     habit_: Habit = database.get(Habit, int(request.args.get("id_")))
+    database.delete_multiple([i for i in habit_.entries])
     database.delete(habit_)
+
+    return redirect(request.referrer)
+
+
+@current_app.route("/entry_create", methods=["POST"])
+def entry_create():
+    habit_: Habit = database.get(Habit, int(request.form["id_"]))
+    entry_ = Entry(date_created=datetime.date.today(),
+                   habit=habit_.id,
+                   user=current_user.id)
+    database.add(entry_)
+
+    return redirect(request.referrer)
+
+
+@current_app.route("/entry_delete")
+def entry_delete():
+    entry_: Entry = database.get(Entry, int(request.args.get("id_")))
+    database.delete(entry_)
 
     return redirect(request.referrer)

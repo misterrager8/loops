@@ -31,8 +31,25 @@ function habitUpdate(habitId) {
 function habitDelete(habitId) {
     $('#spinner').show();
     $.get('habit_delete', {
-        id_: habitId,
-        description: $('#description').val()
+        id_: habitId
+    }, function(data) {
+        refreshPage();
+    });
+}
+
+function entryCreate(habitId) {
+    $('#spinner').show();
+    $.post('entry_create', {
+        id_: habitId
+    }, function(data) {
+        refreshPage();
+    });
+}
+
+function entryDelete(entryId) {
+    $('#spinner').show();
+    $.get('entry_delete', {
+        id_: entryId
     }, function(data) {
         refreshPage();
     });
