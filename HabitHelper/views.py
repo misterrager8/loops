@@ -21,7 +21,7 @@ def load_user(id_: int):
 
 @current_app.route("/")
 def index():
-    return render_template("index.html", week=calendar.get_last_week())
+    return render_template("index.html", week=calendar.get_last_week() if not current_user.is_anonymous else [])
 
 
 @current_app.route("/login", methods=["POST"])
