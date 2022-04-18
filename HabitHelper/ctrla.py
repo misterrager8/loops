@@ -1,3 +1,8 @@
+import datetime
+from calendar import Calendar
+from datetime import timedelta, date
+
+from flask_login import current_user
 from sqlalchemy import text
 
 from HabitHelper import db
@@ -43,3 +48,24 @@ class Database:
     def execute_stmt(stmt: str):
         db.session.execute(stmt)
         db.session.commit()
+
+
+class HabitCalendar(Calendar):
+    def __init__(self):
+        super().__init__()
+
+    @staticmethod
+    def format_day(day: date):
+        some = []
+        for i in current_user.entries:
+            if i.date_created == day:
+                some.append(
+                    "<a href='habit?id_=%s' class='bi bi-circle-fill m-1' style='color:%s'></a>" % (
+                        i.habit, i.habits.color))
+        return "<div class='card col-2'><div class='card-body my-3'>%s %s</div></div>" % (day.day, "".join(some))
+
+    def get_last_week(self):
+        return [self.format_day(datetime.date.today() - timedelta(days=i)) for i in range(0, 7)]
+
+    def get_last_month(self):
+        return [self.format_day(datetime.date.today() - timedelta(days=i)) for i in range(0, 30)]

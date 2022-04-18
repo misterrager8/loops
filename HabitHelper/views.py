@@ -7,10 +7,11 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import redirect
 
 from HabitHelper import login_manager
-from HabitHelper.ctrla import Database
+from HabitHelper.ctrla import Database, HabitCalendar
 from HabitHelper.models import User, Habit, Entry
 
 database = Database()
+calendar = HabitCalendar()
 
 
 @login_manager.user_loader
@@ -20,7 +21,7 @@ def load_user(id_: int):
 
 @current_app.route("/")
 def index():
-    return render_template("index.html")
+    return render_template("index.html", week=calendar.get_last_week())
 
 
 @current_app.route("/login", methods=["POST"])
