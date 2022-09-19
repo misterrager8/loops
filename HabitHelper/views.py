@@ -1,145 +1,45 @@
 import datetime
 import random
 
-from flask import render_template, current_app, request, url_for
-from flask_login import login_user, logout_user, current_user
-from werkzeug.security import check_password_hash, generate_password_hash
-from werkzeug.utils import redirect
+from flask import current_app, redirect, render_template, request
 
-from HabitHelper import login_manager
-from HabitHelper.ctrla import Database, HabitCalendar
-from HabitHelper.models import User, Habit, Entry
-
-database = Database()
-calendar = HabitCalendar()
+from habithelper.models import Item
 
 
-@login_manager.user_loader
-def load_user(id_: int):
-    return User.query.get(id_)
+@current_app.context_processor
+def get_items():
+    return dict(items_=Item.all())
 
 
 @current_app.route("/")
 def index():
-    return render_template("index.html", week=calendar.get_last_week() if not current_user.is_anonymous else [])
+    return render_template("index.html")
 
 
-@current_app.route("/login", methods=["POST"])
-def login():
-    username = request.form["username"]
-    password = request.form["password"]
-
-    user_: User = User.query.filter(User.username == username).first()
-    if user_ and check_password_hash(user_.password, password):
-        login_user(user_)
-        return redirect(url_for("index"))
-    else:
-        return "Login failed."
-
-
-@current_app.route("/logout")
-def logout():
-    logout_user()
-    return redirect(url_for("index"))
-
-
-@current_app.route("/signup", methods=["POST"])
-def signup():
-    username = request.form["username"]
-    password = request.form["password"]
-    password_confirm = request.form["password_confirm"]
-
-    if password == password_confirm:
-        _ = User(username=username, password=generate_password_hash(password), date_created=datetime.datetime.now())
-        database.add(_)
-        login_user(_)
-        return redirect(url_for("index"))
-    else:
-        return "Try again."
-
-
-@current_app.route("/change_account", methods=["POST"])
-def change_account():
-    current_user.username = request.form["username"]
-    database.update()
+@current_app.route("/add_item", methods=["POST"])
+def add_item():
+    item_ = Item(
+        request.form["name"],
+        color="#{:06x}".format(random.randint(0, 0xFFFFFF)),
+        date_added=datetime.datetime.now(),
+    )
+    item_.insert()
 
     return redirect(request.referrer)
 
 
-@current_app.route("/change_password", methods=["POST"])
-def change_password():
-    old_password = request.form["old_password"]
-    new_password = request.form["new_password"]
-    new_password_confirm = request.form["new_password_confirm"]
-
-    if check_password_hash(current_user.password, old_password) and new_password == new_password_confirm:
-        current_user.password = generate_password_hash(new_password)
-        database.update()
-    else:
-        return "Try again."
+@current_app.route("/edit_item", methods=["POST"])
+def edit_item():
+    item_ = Item.get(int(request.args.get("id_")))
+    item_.name = request.form["name"]
+    item_.edit()
 
     return redirect(request.referrer)
 
 
-@current_app.route("/delete_account")
-def delete_account():
-    database.delete(current_user)
-
-    return redirect(url_for("index"))
-
-
-@current_app.route("/habit_create", methods=["POST"])
-def habit_create():
-    habit_ = Habit(description=request.form["description"],
-                   date_created=datetime.datetime.now(),
-                   color="#{:06x}".format(random.randint(0, 0xFFFFFF)),
-                   frequency=request.form["frequency"],
-                   user=current_user.id)
-    database.add(habit_)
-
-    return redirect(request.referrer)
-
-
-@current_app.route("/habit_update", methods=["POST"])
-def habit_update():
-    habit_: Habit = database.get(Habit, int(request.form["id_"]))
-    habit_.description = request.form["description"]
-    habit_.frequency = request.form["frequency"]
-    database.update()
-
-    return redirect(request.referrer)
-
-
-@current_app.route("/habit")
-def habit():
-    habit_: Habit = database.get(Habit, int(request.args.get("id_")))
-
-    return render_template("habit.html", habit_=habit_)
-
-
-@current_app.route("/habit_delete")
-def habit_delete():
-    habit_: Habit = database.get(Habit, int(request.args.get("id_")))
-    database.delete_multiple([i for i in habit_.entries])
-    database.delete(habit_)
-
-    return redirect(request.referrer)
-
-
-@current_app.route("/entry_create", methods=["POST"])
-def entry_create():
-    habit_: Habit = database.get(Habit, int(request.form["id_"]))
-    entry_ = Entry(date_created=datetime.date.today(),
-                   habit=habit_.id,
-                   user=current_user.id)
-    database.add(entry_)
-
-    return redirect(request.referrer)
-
-
-@current_app.route("/entry_delete")
-def entry_delete():
-    entry_: Entry = database.get(Entry, int(request.args.get("id_")))
-    database.delete(entry_)
+@current_app.route("/delete_item")
+def delete_item():
+    item_ = Item.get(int(request.args.get("id_")))
+    item_.delete()
 
     return redirect(request.referrer)

@@ -1,26 +1,25 @@
-import pymysql
+import mysql.connector
 from flask import Flask
-from flask_login import LoginManager
-from flask_scss import Scss
-from flask_sqlalchemy import SQLAlchemy
 
-pymysql.install_as_MySQLdb()
-db = SQLAlchemy()
-login_manager = LoginManager()
+from habithelper import config
+
+mysql_ = mysql.connector.connect(
+    user=config.USER, password=config.PASSWORD, host=config.HOST
+)
+cursor_ = mysql_.cursor()
 
 
 def create_app(config):
     app = Flask(__name__)
     app.config.from_object(config)
-    Scss(app, asset_dir="HabitHelper/static")
-
-    db.init_app(app)
-    login_manager.init_app(app)
 
     with app.app_context():
         from . import views
 
-        # db.drop_all()
-        db.create_all()
+        cursor_.execute("CREATE DATABASE IF NOT EXISTS HabitHelper")
+        # cursor_.execute("DROP TABLE HabitHelper.habits")
+        cursor_.execute(
+            "CREATE TABLE IF NOT EXISTS HabitHelper.habits (id INT PRIMARY KEY AUTO_INCREMENT, name TEXT, color TEXT, date_added DATETIME)"
+        )
 
         return app
