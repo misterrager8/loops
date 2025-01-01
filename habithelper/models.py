@@ -1,57 +1,157 @@
 import datetime
 
-from habithelper import cursor_, mysql_
+import click
+
+from . import db
 
 
-class Item(object):
-    def __init__(
-        self, name: str, color: str, date_added: datetime.datetime, id: int = None
-    ):
-        self.name = name
-        self.color = color
-        self.date_added = date_added
-        self.id = id
+class Habit(db.Model):
+    __tablename__ = "habits"
+
+    name = db.Column(db.Text)
+    start_date = db.Column(db.Date)
+    frequency = db.Column(db.Text, default="daily")
+    end_date = db.Column(db.Date)
+    reminder = db.Column(db.Boolean, default=False)
+    color = db.Column(db.Text)
+    entries = db.relationship("Entry", backref="habits", lazy="dynamic")
+    id = db.Column(db.Integer, primary_key=True)
+
+    def __init__(self, **kwargs):
+        super(Habit, self).__init__(**kwargs)
 
     @classmethod
-    def get(cls, id: int):
-        cursor_.execute(
-            "SELECT name, color, date_added, id FROM HabitHelper.habits WHERE id=%s",
-            (id,),
-        )
-        result = cursor_.fetchone()
-        return Item(result[0], result[1], result[2], result[3])
+    def get(cls, id):
+        return Habit.query.get(id)
 
     @classmethod
     def all(cls):
-        cursor_.execute(
-            "SELECT name, color, date_added, id FROM HabitHelper.habits ORDER BY id DESC"
+        return sorted(
+            [i for i in Habit.query.all()], key=lambda x: x.color, reverse=True
         )
-        results = cursor_.fetchall()
-        return [Item(i[0], i[1], i[2], i[3]) for i in results]
 
-    def insert(self):
-        cursor_.execute(
-            "INSERT INTO HabitHelper.habits (name, color, date_added) VALUES (%s, %s, %s)",
-            (
-                self.name,
-                self.color,
-                self.date_added,
-            ),
-        )
-        mysql_.commit()
+    @classmethod
+    def delete_all(cls):
+        for i in Habit.all():
+            db.session.delete(i)
+
+        db.session.commit()
+
+    def add(self):
+        db.session.add(self)
+        db.session.commit()
 
     def edit(self):
-        cursor_.execute(
-            "UPDATE HabitHelper.habits SET name=%s, color=%s, date_added=%s WHERE id=%s",
-            (
-                self.name,
-                self.color,
-                self.date_added,
-                self.id,
-            ),
-        )
-        mysql_.commit()
+        db.session.commit()
 
     def delete(self):
-        cursor_.execute("DELETE FROM HabitHelper.habits WHERE id=%s", (self.id,))
-        mysql_.commit()
+        for i in self.entries:
+            db.session.delete(i)
+
+        db.session.delete(self)
+        db.session.commit()
+
+    def clear(self):
+        for i in self.entries:
+            db.session.delete(i)
+
+        db.session.commit()
+
+    def get_streaks(self):
+        return []
+
+    def to_dict(self):
+        entries_ = sorted(self.entries, key=lambda x: x.habits.color, reverse=True)
+
+        return {
+            "name": self.name,
+            "start_date": self.start_date,
+            "frequency": self.frequency,
+            "end_date": self.end_date,
+            "reminder": self.reminder,
+            "color": self.color,
+            "entries": [i.to_dict() for i in entries_],
+            "id": self.id,
+            "streaks": self.get_streaks(),
+        }
+
+
+class Day:
+    def __init__(self):
+        pass
+
+    @classmethod
+    def get_calendar(cls, limit=7):
+        today = datetime.datetime.now()
+        dates = []
+
+        for i in range(0, limit):
+            currentDate = today - datetime.timedelta(i)
+            found = []
+
+            for j in Entry.all():
+                if str(j.entry_date) == str(currentDate)[:10]:
+                    new_dict = {
+                        "id": j.id,
+                        "entryDate": j.entry_date.strftime("%B %-d, %Y"),
+                        "habitColor": j.habits.color,
+                        "habitName": j.habits.name,
+                        "habitId": j.habits.id,
+                    }
+                    found.append(new_dict)
+
+            dates.append(
+                {
+                    "date_": currentDate.strftime("%a %-m/%-d"),
+                    "year": currentDate.year,
+                    "month": currentDate.month-1,
+                    "day": currentDate.day,
+                    "entries": found,
+                }
+            )
+
+        return dates
+
+
+class Entry(db.Model):
+    __tablename__ = "entries"
+
+    entry_date = db.Column(db.Date)
+    habit_id = db.Column(db.Integer, db.ForeignKey("habits.id"))
+    id = db.Column(db.Integer, primary_key=True)
+
+    def __init__(self, **kwargs):
+        super(Entry, self).__init__(**kwargs)
+
+    @classmethod
+    def get(cls, id):
+        return Entry.query.get(id)
+
+    @classmethod
+    def all(cls):
+        return sorted([i for i in Entry.query.all()], key=lambda x: x.id, reverse=True)
+
+    @classmethod
+    def delete_all(cls):
+        for i in Entry.all():
+            db.session.delete(i)
+
+        db.session.commit()
+
+    def add(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def edit(self):
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "entryDate": self.entry_date.strftime("%B %-d, %Y"),
+            "habitId": self.habit_id,
+        }

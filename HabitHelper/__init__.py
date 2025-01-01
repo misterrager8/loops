@@ -1,25 +1,21 @@
-import mysql.connector
+import pymysql
 from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
 
-from habithelper import config
+pymysql.install_as_MySQLdb()
 
-mysql_ = mysql.connector.connect(
-    user=config.USER, password=config.PASSWORD, host=config.HOST
-)
-cursor_ = mysql_.cursor()
+app = Flask(__name__)
+db = SQLAlchemy()
 
 
 def create_app(config):
-    app = Flask(__name__)
     app.config.from_object(config)
 
-    with app.app_context():
-        from . import views
+    db.init_app(app)
 
-        cursor_.execute("CREATE DATABASE IF NOT EXISTS HabitHelper")
-        # cursor_.execute("DROP TABLE HabitHelper.habits")
-        cursor_.execute(
-            "CREATE TABLE IF NOT EXISTS HabitHelper.habits (id INT PRIMARY KEY AUTO_INCREMENT, name TEXT, color TEXT, date_added DATETIME)"
-        )
+    with app.app_context():
+        from . import routes
+
+        db.create_all()
 
         return app

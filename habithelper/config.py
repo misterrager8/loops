@@ -4,9 +4,13 @@ import dotenv
 
 dotenv.load_dotenv()
 
-ENV = os.getenv("env")
-DEBUG = os.getenv("debug")
+PORT = os.getenv("PORT") or "4999"
+SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI")
 
-USER = os.getenv("user")
-PASSWORD = os.getenv("password")
-HOST = os.getenv("host")
+
+def get():
+    return dotenv.dotenv_values()
+
+
+def set(key, value):
+    dotenv.set_key(dotenv.find_dotenv(), key, value)

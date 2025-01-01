@@ -1,4 +1,4 @@
 .env
-HabitHelper.egg-info/
+habithelper.egg-info/
 *.pyc
 .DS_Store
