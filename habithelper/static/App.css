@@ -126,3 +126,9 @@ input[type="color"] {
   border: 1px solid var(--primary-txt);
   border-radius: 5px;
 }
+
+.input-group-text {
+  background-color: inherit;
+  color: inherit;
+  border: 0;
+}

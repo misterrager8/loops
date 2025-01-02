@@ -56,7 +56,32 @@ class Habit(db.Model):
         db.session.commit()
 
     def get_streaks(self):
-        return []
+        data = sorted(self.entries, key=lambda x: x.entry_date, reverse=True)
+
+        if not data:
+            return None
+
+        streaks = []
+        current_streak_value = data[0]
+        current_streak_length = 1
+
+        for i in range(1, len(data)):
+            if ((current_streak_value.entry_date - data[i].entry_date).days) == 1:
+                current_streak_length += 1
+                current_streak_value = data[i]
+            else:
+                streaks.append(current_streak_length)
+                current_streak_value = data[i]
+                current_streak_length = 1
+
+        if current_streak_length > 1:
+            streaks.append(current_streak_length)
+
+        sorted_ = sorted([i for i in streaks if i > 1], key=lambda g: g, reverse=True)
+        if len(sorted_) > 0:
+            return sorted_[0]
+        else:
+            return None
 
     def to_dict(self):
         entries_ = sorted(self.entries, key=lambda x: x.entry_date, reverse=True)

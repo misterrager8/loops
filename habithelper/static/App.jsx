@@ -261,50 +261,58 @@ function HabitItem({ item, className = "" }) {
   };
 
   return (
-    <form
-      onSubmit={(e) => editHabit(e)}
-      className={
-        "input-group input-group-sm mb-1 " +
-        (multiCtx.hovered?.habitId === item.id ? "selected" : "")
-      }>
-      {item.entries[0]?.entryDateFormat2 != new Date().toDateString() && (
-        <Button
-          type_="button"
-          className="border-0"
-          icon="check-lg"
-          onClick={() => {
-            multiCtx.addEntry(item.id, new Date().toDateString());
-          }}
+    <React.Fragment>
+      <form
+        onSubmit={(e) => editHabit(e)}
+        className={
+          "input-group input-group-sm mb-1 " +
+          (multiCtx.hovered?.habitId === item.id ? "selected" : "")
+        }>
+        {item.entries[0]?.entryDateFormat2 !== new Date().toDateString() && (
+          <Button
+            type_="button"
+            className="border-0"
+            icon="check-lg"
+            onClick={() => {
+              multiCtx.addEntry(item.id, new Date().toDateString());
+            }}
+          />
+        )}
+        {saved && <Button className="border-0" icon="floppy2" />}
+        <Input
+          className="m-1"
+          type_="color"
+          onChange={onChangeColor}
+          value={color}
         />
-      )}
-      {saved && <Button className="border-0" icon="floppy2" />}
-      <Input
-        className="m-1"
-        type_="color"
-        onChange={onChangeColor}
-        value={color}
-      />
-      <Input
-        value={name}
-        onChange={onChangeName}
-        className="py-0 border-0 label"
-      />
-      <Button type_="submit" className="d-none" />
-      {deleting && (
+        <Input
+          value={name}
+          onChange={onChangeName}
+          className="py-0 border-0 label"
+        />
+        <Button type_="submit" className="d-none" />
+        {item.streaks && (
+          <span className="input-group-text">
+            <i className="bi bi-caret-up-fill text-success me-2"></i>
+            <span>{item.streaks}</span>
+          </span>
+        )}
+        {deleting && (
+          <Button
+            className="border-0"
+            onClick={() => deleteHabit()}
+            type_="button"
+            icon="question-lg"
+          />
+        )}
         <Button
           className="border-0"
-          onClick={() => deleteHabit()}
+          onClick={() => setDeleting(!deleting)}
           type_="button"
-          icon="question-lg"
+          icon="x-lg"
         />
-      )}
-      <Button
-        className="border-0"
-        onClick={() => setDeleting(!deleting)}
-        type_="button"
-        icon="x-lg"
-      />
-    </form>
+      </form>
+    </React.Fragment>
   );
 }
 
