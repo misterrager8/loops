@@ -100,12 +100,14 @@ function Dropdown({
   icon,
   children,
   text,
+  autoClose = true,
 }) {
   return (
     <div className={className + " dropdown"}>
       <a
         data-bs-target={"#" + target}
         data-bs-toggle="dropdown"
+        data-bs-auto-close={autoClose}
         className={classNameBtn + " dropdown-toggle"}>
         {icon && <Icon name={icon} className="me-1" />}
         {text}
@@ -150,7 +152,6 @@ function HomePage({ className }) {
   const [name, setName] = React.useState("");
 
   const onChangeName = (e) => setName(e.target.value);
-  const onChangeLimit = (e) => setLimit(e.target.value);
 
   const limitOptions = [7, 14, 30, 90];
 
@@ -183,7 +184,7 @@ function HomePage({ className }) {
               />
             </form>
             {multiCtx.habits?.map((x) => (
-              <React.Fragment key={x.id}>
+              <React.Fragment key={`top-${x.id}`}>
                 <HabitItem item={x} />
               </React.Fragment>
             ))}
@@ -191,18 +192,22 @@ function HomePage({ className }) {
           <div className="col-9">
             <ButtonGroup size="sm" className="mb-3">
               {limitOptions.map((x) => (
-                <Button
-                  className={multiCtx.limit === x ? "active" : ""}
-                  onClick={() => multiCtx.setLimit(x)}
-                  text={x}
-                />
+                <React.Fragment key={x}>
+                  <Button
+                    className={multiCtx.limit === x ? "active" : ""}
+                    onClick={() => multiCtx.setLimit(x)}
+                    text={x}
+                  />
+                </React.Fragment>
               ))}
             </ButtonGroup>
             <div
               className={className}
               style={{ display: "flex", flexWrap: "wrap" }}>
               {multiCtx.days.map((x) => (
-                <DayItem item={x} />
+                <React.Fragment key={x.date_}>
+                  <DayItem item={x} />
+                </React.Fragment>
               ))}
             </div>
           </div>
@@ -241,8 +246,9 @@ function HabitItem({ item, className = "" }) {
     e.preventDefault();
     api("edit_habit", { id: item.id, name: name, color: color }, (data) => {
       multiCtx.getHabits();
+      multiCtx.getCalendar();
       setSaved(true);
-      setTimeout(() => setSaved(false), 500);
+      setTimeout(() => setSaved(false), 1000);
     });
   };
 
@@ -255,16 +261,23 @@ function HabitItem({ item, className = "" }) {
   };
 
   return (
-    <form onSubmit={(e) => editHabit(e)} className="input-group mb-1">
-      <Button
-        type_="button"
-        className="border-0"
-        icon="fast-forward-fill"
-        onClick={() => {
-          multiCtx.addEntry(item.id, new Date().toDateString());
-        }}
-      />
-      {saved && <Button className="border-0" icon="check-lg" />}
+    <form
+      onSubmit={(e) => editHabit(e)}
+      className={
+        "input-group input-group-sm mb-1 " +
+        (multiCtx.hovered?.habitId === item.id ? "selected" : "")
+      }>
+      {item.entries[0]?.entryDateFormat2 != new Date().toDateString() && (
+        <Button
+          type_="button"
+          className="border-0"
+          icon="check-lg"
+          onClick={() => {
+            multiCtx.addEntry(item.id, new Date().toDateString());
+          }}
+        />
+      )}
+      {saved && <Button className="border-0" icon="floppy2" />}
       <Input
         className="m-1"
         type_="color"
@@ -289,51 +302,19 @@ function HabitItem({ item, className = "" }) {
         className="border-0"
         onClick={() => setDeleting(!deleting)}
         type_="button"
-        icon="x-circle"
+        icon="x-lg"
       />
     </form>
-  );
-}
-
-function EntryItem({ item, className = "" }) {
-  const multiCtx = React.useContext(MultiContext);
-  const [deleting, setDeleting] = React.useState(false);
-
-  const deleteEntry = () => {
-    api("delete_entry", { id: item.id }, (data) => {
-      multiCtx.getHabits();
-    });
-  };
-
-  return (
-    <>
-      <div className={className + " between"}>
-        <div>{item.entryDate}</div>
-        <ButtonGroup size="sm">
-          {deleting && (
-            <Button
-              className="border-0 text-danger"
-              onClick={() => deleteEntry()}
-              icon="question-lg"
-            />
-          )}
-          <Button
-            className="border-0 text-danger"
-            onClick={() => setDeleting(!deleting)}
-            icon="x-lg"
-          />
-        </ButtonGroup>
-      </div>
-    </>
   );
 }
 
 function DayItem({ item, className = "" }) {
   const multiCtx = React.useContext(MultiContext);
   const [deleting, setDeleting] = React.useState(false);
+  const [clearing, setClearing] = React.useState(false);
 
-  const deleteEntry = () => {
-    api("delete_entry", { id: item.entries[0].id }, (data) => {
+  const deleteEntry = (id) => {
+    api("delete_entry", { id: id }, (data) => {
       multiCtx.getHabits();
       multiCtx.getCalendar();
       multiCtx.setHovered(null);
@@ -348,16 +329,27 @@ function DayItem({ item, className = "" }) {
     return ids;
   };
 
+  const clearAll = () => {
+    api(
+      "clear_day",
+      {
+        date: new Date(item.year, item.month, item.day).toDateString(),
+      },
+      (data) => multiCtx.getCalendar()
+    );
+  };
+
   return (
     <div className="day-outer">
-      <div className="day-inner">
+      <div className="day-inner position-relative">
         <Dropdown
-          className="text-center mb-3"
+          autoClose="outside"
+          className="text-center mb-2"
           classNameBtn="label small"
           target="add-entry"
           text={item.date_}>
           {multiCtx.habits.map((x) => (
-            <>
+            <React.Fragment key={x.id}>
               {!excludeHabits().includes(x.id) && (
                 <a
                   onClick={() =>
@@ -366,50 +358,80 @@ function DayItem({ item, className = "" }) {
                       new Date(item.year, item.month, item.day).toDateString()
                     )
                   }
-                  className="dropdown-item">
+                  className="dropdown-item label small">
                   <i
                     className="bi bi-square-fill me-2"
                     style={{ color: x.color }}></i>
                   <span>{x.name}</span>
                 </a>
               )}
-            </>
+            </React.Fragment>
           ))}
+          {item.entries.length > 0 && (
+            <>
+              <hr className="my-2 mx-3" />
+              <div className="d-flex">
+                <ButtonGroup size="sm" className="mx-auto">
+                  <Button
+                    onClick={() => setClearing(!clearing)}
+                    className="border-0"
+                    text="Clear All"
+                  />
+                  {clearing && (
+                    <Button
+                      icon="question-lg"
+                      onClick={() => clearAll()}
+                      className="border-0"
+                    />
+                  )}
+                </ButtonGroup>
+              </div>
+            </>
+          )}
         </Dropdown>
         <div>
           {item.entries.map((y) => (
             <i
+              key={y.id}
               onClick={() => {
                 multiCtx.setHovered(y);
               }}
               style={{ color: y.habitColor }}
-              className={"cursor bi bi-square-fill p-1"}></i>
+              className={
+                "cursor bi bi-check-square-fill p-1 " +
+                (multiCtx.hovered === y ? "selected-entry" : "")
+              }></i>
           ))}
         </div>
-        {multiCtx.hovered?.entryDate === item.entries[0]?.entryDate &&
-          multiCtx.hovered && (
-            <div>
-              <div className="text-center my-2 label small">
-                {multiCtx.hovered?.habitName}
+        <div className="position-absolute bottom-0">
+          {multiCtx.hovered?.entryDate === item.entries[0]?.entryDate &&
+            multiCtx.hovered && (
+              <div className="mb-2">
+                <div className="label small">{multiCtx.hovered?.habitName}</div>
+                <div className="d-flex">
+                  <ButtonGroup size="sm" className="mx-auto">
+                    <Button
+                      icon="arrow-left"
+                      className="border-0"
+                      onClick={() => multiCtx.setHovered(null)}
+                    />
+                    <Button
+                      className="border-0"
+                      icon="x-lg"
+                      onClick={() => setDeleting(!deleting)}
+                    />
+                    {deleting && (
+                      <Button
+                        className="border-0"
+                        icon="question-lg"
+                        onClick={() => deleteEntry(multiCtx.hovered?.id)}
+                      />
+                    )}
+                  </ButtonGroup>
+                </div>
               </div>
-              <div className="d-flex">
-                <ButtonGroup size="sm" className="mx-auto">
-                  <Button
-                    icon="arrow-left"
-                    className="border-0"
-                    onClick={() => multiCtx.setHovered(null)}
-                  />
-                  <Button
-                    icon="x-circle"
-                    onClick={() => setDeleting(!deleting)}
-                  />
-                  {deleting && (
-                    <Button icon="question-lg" onClick={() => deleteEntry()} />
-                  )}
-                </ButtonGroup>
-              </div>
-            </div>
-          )}
+            )}
+        </div>
       </div>
     </div>
   );
@@ -417,25 +439,6 @@ function DayItem({ item, className = "" }) {
 
 function Nav({ className }) {
   const multiCtx = React.useContext(MultiContext);
-
-  const themes = [
-    "light",
-    "dark",
-    "red-light",
-    "orange-light",
-    "yellow-light",
-    "green-light",
-    "blue-light",
-    "indigo-light",
-    "violet-light",
-    "red-dark",
-    "orange-dark",
-    "yellow-dark",
-    "green-dark",
-    "blue-dark",
-    "indigo-dark",
-    "violet-dark",
-  ];
 
   return (
     <div className={className + " between"}>
@@ -479,11 +482,19 @@ function App() {
   const [limit, setLimit] = React.useState(14);
 
   const getHabit = (id) => {
-    api("get_habit", { id: id }, (data) => setCurrentHabit(data.habit));
+    setLoading(true);
+    api("get_habit", { id: id }, (data) => {
+      setCurrentHabit(data.habit);
+      setLoading(false);
+    });
   };
 
   const getHabits = () => {
-    api("get_habits", {}, (data) => setHabits(data.habits));
+    setLoading(true);
+    api("get_habits", {}, (data) => {
+      setHabits(data.habits);
+      setLoading(false);
+    });
   };
 
   const addHabit = (name) => {
@@ -500,7 +511,11 @@ function App() {
   };
 
   const getCalendar = () => {
-    api("get_calendar", { limit: limit }, (data) => setDays(data.days));
+    setLoading(true);
+    api("get_calendar", { limit: limit }, (data) => {
+      setDays(data.days);
+      setLoading(false);
+    });
   };
 
   const contextValue = {

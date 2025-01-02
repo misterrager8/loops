@@ -26,9 +26,7 @@ class Habit(db.Model):
 
     @classmethod
     def all(cls):
-        return sorted(
-            [i for i in Habit.query.all()], key=lambda x: x.color, reverse=True
-        )
+        return sorted([i for i in Habit.query.all()], key=lambda x: x.id, reverse=True)
 
     @classmethod
     def delete_all(cls):
@@ -61,7 +59,7 @@ class Habit(db.Model):
         return []
 
     def to_dict(self):
-        entries_ = sorted(self.entries, key=lambda x: x.habits.color, reverse=True)
+        entries_ = sorted(self.entries, key=lambda x: x.entry_date, reverse=True)
 
         return {
             "name": self.name,
@@ -104,13 +102,28 @@ class Day:
                 {
                     "date_": currentDate.strftime("%a %-m/%-d"),
                     "year": currentDate.year,
-                    "month": currentDate.month-1,
+                    "month": currentDate.month - 1,
                     "day": currentDate.day,
-                    "entries": found,
+                    "entries": sorted(
+                        found, key=lambda d: d.get("habitId"), reverse=True
+                    ),
                 }
             )
 
         return dates
+
+    @classmethod
+    def clear(cls, date):
+        found = []
+
+        for j in Entry.all():
+            if str(j.entry_date) == str(date)[:10]:
+                found.append(j)
+
+        for k in found:
+            db.session.delete(k)
+
+        db.session.commit()
 
 
 class Entry(db.Model):
@@ -153,5 +166,6 @@ class Entry(db.Model):
         return {
             "id": self.id,
             "entryDate": self.entry_date.strftime("%B %-d, %Y"),
+            "entryDateFormat2": self.entry_date.strftime("%a %b %d %Y"),
             "habitId": self.habit_id,
         }

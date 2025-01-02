@@ -217,3 +217,21 @@ def clear_habit():
         "msg": msg,
         "habit": habit_.to_dict(),
     }
+
+
+@current_app.post("/clear_day")
+def clear_day():
+    success = True
+    msg = ""
+
+    try:
+        date_ = datetime.datetime.strptime(request.json.get("date"), "%a %b %d %Y")
+        Day.clear(date_)
+    except Exception as e:
+        success = False
+        msg = str(e)
+
+    return {
+        "success": success,
+        "msg": msg,
+    }
