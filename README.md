@@ -4,6 +4,7 @@
 loops is a web-based application designed to help users build and maintain positive habits by tracking their daily progress. Whether you're trying to exercise more, read regularly, or learn a new skill, this application empowers you to stay consistent and accountable.
 
 ![](/docs/screenshot-1.png)
+![](/docs/screenshot-2.png)
 
 ## Features
 
