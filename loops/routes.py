@@ -182,6 +182,29 @@ def get_calendar():
     }
 
 
+@current_app.post("/get_month_with_habit")
+def get_month_with_habit():
+    success = True
+    msg = ""
+    days = []
+
+    try:
+        days = Day.get_month_with_habit(
+            int(request.json.get("month")),
+            int(request.json.get("year")),
+            int(request.json.get("habitId")),
+        )
+    except Exception as e:
+        success = False
+        msg = str(e)
+
+    return {
+        "success": success,
+        "msg": msg,
+        "days": days,
+    }
+
+
 @current_app.post("/get_month")
 def get_month():
     success = True
@@ -192,7 +215,6 @@ def get_month():
         days = Day.get_month(
             int(request.json.get("month")),
             int(request.json.get("year")),
-            int(request.json.get("habitId")),
         )
     except Exception as e:
         success = False

@@ -229,13 +229,31 @@ function HomePage({ className = "" }) {
 
   const weekdays = ["S", "M", "T", "W", "Th", "F", "S"];
 
+  const getMonthWithHabit = () => {
+    api(
+      "get_month_with_habit",
+      {
+        month: currentMonth,
+        year: currentYear,
+        habitId: multiCtx.currentHabit.id,
+      },
+      (data) => {
+        let days_ = data.days;
+
+        let filler = Array(days_[0].weekdayInt + 1).fill({ filler: true });
+        let filled = filler.concat(days_);
+
+        setDays(days_[0].weekdayInt + 1 == 7 ? days_ : filled);
+      }
+    );
+  };
+
   const getMonth = () => {
     api(
       "get_month",
       {
         month: currentMonth,
         year: currentYear,
-        habitId: multiCtx.currentHabit.id,
       },
       (data) => {
         let days_ = data.days;
@@ -256,13 +274,13 @@ function HomePage({ className = "" }) {
         date: date,
       },
       (data) => {
-        getMonth();
+        getMonthWithHabit();
       }
     );
   };
 
   const deleteEntry = (id) => {
-    api("delete_entry", { id: id }, (data) => getMonth());
+    api("delete_entry", { id: id }, (data) => getMonthWithHabit());
   };
 
   const isToday = (day) => {
@@ -278,6 +296,8 @@ function HomePage({ className = "" }) {
     multiCtx.getHabits();
     if (multiCtx.currentHabit) {
       setSelected(null);
+      getMonthWithHabit();
+    } else {
       getMonth();
     }
   }, [currentMonth, currentYear, multiCtx.currentHabit]);
@@ -286,6 +306,13 @@ function HomePage({ className = "" }) {
     <div>
       <div className={className + " row"}>
         <div className="col-3">
+          <div
+            className={"p-1 m-1" + (!multiCtx.currentHabit ? " selected" : "")}>
+            <a className="label" onClick={() => multiCtx.setCurrentHabit(null)}>
+              <i className="bi bi-asterisk me-2"></i>
+              <span className="small">All</span>
+            </a>
+          </div>
           {multiCtx.habits.map((x) => (
             <div
               className={
@@ -305,7 +332,7 @@ function HomePage({ className = "" }) {
           ))}
         </div>
         <div className="col-9">
-          {multiCtx.currentHabit && (
+          {multiCtx.currentHabit ? (
             <>
               <h1 className="mb-3">
                 <span>{days[days.length - 1]?.monthName}</span>{" "}
@@ -382,6 +409,82 @@ function HomePage({ className = "" }) {
                   </div>
                 </div>
               </div>
+            </>
+          ) : (
+            <>
+              <h1 className="mb-3">
+                <span>{days[days.length - 1]?.monthName}</span>{" "}
+                {selected ? (
+                  <span>{selected?.day}, </span>
+                ) : (
+                  <>{hovered && <span>{hovered?.day}, </span>}</>
+                )}
+                <span>{days[days.length - 1]?.year}</span>
+              </h1>
+              <div className="">
+                <div className="">
+                  <div className="mb-3">
+                    <Button
+                      onClick={() => {
+                        if (currentMonth == 1) {
+                          setCurrentMonth(12);
+                          setCurrentYear(currentYear - 1);
+                        } else {
+                          setCurrentMonth(currentMonth - 1);
+                        }
+                      }}
+                      className="border-0"
+                      icon="arrow-left"
+                    />
+                    {days.length > 26 && (
+                      <Button
+                        onClick={() => {
+                          if (currentMonth == 12) {
+                            setCurrentMonth(1);
+                            setCurrentYear(currentYear + 1);
+                          } else {
+                            setCurrentMonth(currentMonth + 1);
+                          }
+                        }}
+                        className="border-0"
+                        icon="arrow-right"
+                      />
+                    )}
+                  </div>
+                  <div className="month" onMouseLeave={() => setHovered(null)}>
+                    {weekdays.map((x) => (
+                      <div className="weekday">{x}</div>
+                    ))}
+                    {days.map((x) => (
+                      <div
+                        key={x.id}
+                        onMouseEnter={() => setHovered(x)}
+                        className={
+                          "day" +
+                          (x.filler ? " filler" : "") +
+                          (hovered === x && !x.filler ? " hovered" : "") +
+                          (selected === x && !x.filler ? " selected-day" : "") +
+                          ` unempty-${
+                            x.entries?.length > 5 ? 5 : x.entries?.length
+                          }`
+                        }></div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              {hovered?.entries?.length > 0 && (
+                <>
+                  <div>{hovered?.entries?.length} habits</div>
+                  {hovered?.entries.map((x) => (
+                    <div className="m-1">
+                      <i
+                        className="bi bi-square-fill me-2"
+                        style={{ color: x.habitColor }}></i>
+                      <span>{x.habitName}</span>
+                    </div>
+                  ))}
+                </>
+              )}
             </>
           )}
         </div>

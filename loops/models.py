@@ -139,13 +139,46 @@ class Day:
         return dates
 
     @classmethod
-    def get_month(cls, month, year, habit_id):
+    def get_month_with_habit(cls, month, year, habit_id):
         dates = []
         habit_ = Habit.get(habit_id)
         for i in Calendar(6).itermonthdates(year, month):
             found = []
             if i.month == month and i <= datetime.date.today():
                 for j in habit_.entries:
+                    if str(j.entry_date) == str(i):
+                        found.append(
+                            {
+                                "id": j.id,
+                                "entryDate": j.entry_date.strftime("%B %-d, %Y"),
+                                "habitColor": j.habits.color,
+                                "habitName": j.habits.name,
+                                "habitId": j.habits.id,
+                            }
+                        )
+
+                dates.append(
+                    {
+                        "id": i.strftime("%y%m%d"),
+                        "year": i.year,
+                        "monthInt": i.month,
+                        "monthName": i.strftime("%B"),
+                        "day": i.day,
+                        "weekdayInt": i.weekday(),
+                        "weekdayName": i.strftime("%a"),
+                        "fullStamp": i.strftime("%B %-d"),
+                        "entries": found,
+                    }
+                )
+        return dates
+
+    @classmethod
+    def get_month(cls, month, year):
+        dates = []
+        for i in Calendar(6).itermonthdates(year, month):
+            found = []
+            if i.month == month and i <= datetime.date.today():
+                for j in Entry.all():
                     if str(j.entry_date) == str(i):
                         found.append(
                             {

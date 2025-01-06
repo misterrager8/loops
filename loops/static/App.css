@@ -152,13 +152,13 @@ input[type="color"] {
 
 .month {
   display: flex;
-  width: 150px;
+  width: 260px;
   flex-wrap: wrap;
 }
 
 .day {
-  height: 16px;
-  width: 16px;
+  height: 32;
+  width: 32px;
   border-radius: 5px;
   border: 1px solid var(--primary-txt);
   margin: 2px;
@@ -166,7 +166,7 @@ input[type="color"] {
 }
 
 .weekday {
-  width: 16.2px;
+  width: 32px;
   text-align: center;
   margin: 2px;
   font-size: 0.8rem;
@@ -189,4 +189,59 @@ input[type="color"] {
 .today {
   border-color: blue;
   border-width: 3px;
+}
+
+/* .unempty-5 {
+  background-color: #161b22;
+  border: 0;
+}
+
+.unempty-4 {
+  background-color: #0e4429;
+  border: 0;
+}
+
+.unempty-3 {
+  background-color: #006d32;
+  border: 0;
+}
+
+.unempty-2 {
+  background-color: #26a641;
+  border: 0;
+}
+
+.unempty-1 {
+  background-color: #39d353;
+  border: 0;
+} */
+
+.unempty-1 {
+  background-color: var(--primary-txt);
+  opacity: 20%;
+  border: 0;
+}
+
+.unempty-2 {
+  background-color: var(--primary-txt);
+  opacity: 40%;
+  border: 0;
+}
+
+.unempty-3 {
+  background-color: var(--primary-txt);
+  opacity: 60%;
+  border: 0;
+}
+
+.unempty-4 {
+  background-color: var(--primary-txt);
+  opacity: 80%;
+  border: 0;
+}
+
+.unempty-5 {
+  background-color: var(--primary-txt);
+  opacity: 100%;
+  border: 0;
 }
