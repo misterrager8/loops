@@ -7,7 +7,7 @@ from pathlib import Path
 import click
 from flask import current_app, render_template, request
 
-from habithelper.models import Day, Entry, Habit
+from loops.models import Day, Entry, Habit
 
 
 @current_app.route("/")
@@ -171,6 +171,29 @@ def get_calendar():
 
     try:
         days = Day.get_calendar(limit=int(request.json.get("limit")))
+    except Exception as e:
+        success = False
+        msg = str(e)
+
+    return {
+        "success": success,
+        "msg": msg,
+        "days": days,
+    }
+
+
+@current_app.post("/get_month")
+def get_month():
+    success = True
+    msg = ""
+    days = []
+
+    try:
+        days = Day.get_month(
+            int(request.json.get("month")),
+            int(request.json.get("year")),
+            int(request.json.get("habitId")),
+        )
     except Exception as e:
         success = False
         msg = str(e)

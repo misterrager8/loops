@@ -1,7 +1,7 @@
-# Habit Helper
+# loops
 
 ## Overview
-The Habit Helper is a web-based application designed to help users build and maintain positive habits by tracking their daily progress. Whether you're trying to exercise more, read regularly, or learn a new skill, this application empowers you to stay consistent and accountable.
+loops is a web-based application designed to help users build and maintain positive habits by tracking their daily progress. Whether you're trying to exercise more, read regularly, or learn a new skill, this application empowers you to stay consistent and accountable.
 
 ![](/docs/screenshot-1.png)
 
@@ -29,8 +29,8 @@ The Habit Helper is a web-based application designed to help users build and mai
 This application is hosted online. No installation is required.
 
 If you prefer to run it locally:
-1. Clone the repository: `git clone https://github.com/yourusername/habit-helper.git`
-2. Navigate to the project directory: `cd habit-helper`
+1. Clone the repository: `git clone https://github.com/yourusername/loops.git`
+2. Navigate to the project directory: `cd loops`
 3. Install dependencies: `npm install`
 4. Start the development server: `npm start`
 5. Open `http://localhost:3000` in your browser.
@@ -63,8 +63,8 @@ Please ensure your code follows the project's coding standards and includes appr
 This project is licensed under the MIT License. See the LICENSE file for details.
 
 ## Contact
-For questions or support, please contact us at [support@habithelper.com](mailto:support@habithelper.com) or open an issue in the [GitHub repository](https://github.com/yourusername/habit-helper).
+For questions or support, please contact us at [support@loops.com](mailto:support@loops.com) or open an issue in the [GitHub repository](https://github.com/yourusername/loops).
 
 ---
-Thank you for using the Habit Helper! Stay consistent, stay successful.
+Thank you for using loops! Stay consistent, stay successful.
 

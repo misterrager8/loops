@@ -147,7 +147,7 @@ function Heading({ className, size = 1, icon, text }) {
   );
 }
 
-function HomePage({ className }) {
+function HomePage2({ className }) {
   const multiCtx = React.useContext(MultiContext);
   const [name, setName] = React.useState("");
 
@@ -196,14 +196,12 @@ function HomePage({ className }) {
                   <Button
                     className={multiCtx.limit === x ? "active" : ""}
                     onClick={() => multiCtx.setLimit(x)}
-                    text={x}
+                    text={`${x} Days`}
                   />
                 </React.Fragment>
               ))}
             </ButtonGroup>
-            <div
-              className={className}
-              style={{ display: "flex", flexWrap: "wrap" }}>
+            <div className="scroller">
               {multiCtx.days.map((x) => (
                 <React.Fragment key={x.date_}>
                   <DayItem item={x} />
@@ -214,6 +212,184 @@ function HomePage({ className }) {
         </div>
       </div>
     </>
+  );
+}
+
+function HomePage({ className = "" }) {
+  const multiCtx = React.useContext(MultiContext);
+  const [currentMonth, setCurrentMonth] = React.useState(
+    new Date().getMonth() + 1
+  );
+  const [currentYear, setCurrentYear] = React.useState(
+    new Date().getFullYear()
+  );
+  const [days, setDays] = React.useState([]);
+  const [hovered, setHovered] = React.useState(null);
+  const [selected, setSelected] = React.useState(null);
+
+  const weekdays = ["S", "M", "T", "W", "Th", "F", "S"];
+
+  const getMonth = () => {
+    api(
+      "get_month",
+      {
+        month: currentMonth,
+        year: currentYear,
+        habitId: multiCtx.currentHabit.id,
+      },
+      (data) => {
+        let days_ = data.days;
+
+        let filler = Array(days_[0].weekdayInt + 1).fill({ filler: true });
+        let filled = filler.concat(days_);
+
+        setDays(days_[0].weekdayInt + 1 == 7 ? days_ : filled);
+      }
+    );
+  };
+
+  const addEntry = (id, date) => {
+    api(
+      "add_entry",
+      {
+        id: id,
+        date: date,
+      },
+      (data) => {
+        getMonth();
+      }
+    );
+  };
+
+  const deleteEntry = (id) => {
+    api("delete_entry", { id: id }, (data) => getMonth());
+  };
+
+  const isToday = (day) => {
+    let today = new Date();
+    return (
+      day.monthInt === today.getMonth() + 1 &&
+      day.day === today.getDate() &&
+      day.year === today.getFullYear()
+    );
+  };
+
+  React.useEffect(() => {
+    multiCtx.getHabits();
+    if (multiCtx.currentHabit) {
+      setSelected(null);
+      getMonth();
+    }
+  }, [currentMonth, currentYear, multiCtx.currentHabit]);
+
+  return (
+    <div>
+      <div className={className + " row"}>
+        <div className="col-3">
+          {multiCtx.habits.map((x) => (
+            <div
+              className={
+                "p-1 m-1 " +
+                (multiCtx.currentHabit?.id === x.id ? "selected" : "")
+              }>
+              <a
+                className="label"
+                onClick={() => multiCtx.setCurrentHabit(x)}
+                key={x.id}>
+                <i
+                  className="bi bi-square-fill me-2"
+                  style={{ color: x.color }}></i>
+                <span className="small">{x.name}</span>
+              </a>
+            </div>
+          ))}
+        </div>
+        <div className="col-9">
+          {multiCtx.currentHabit && (
+            <>
+              <h1 className="mb-3">
+                <span>{days[days.length - 1]?.monthName}</span>{" "}
+                {selected ? (
+                  <span>{selected?.day}, </span>
+                ) : (
+                  <>{hovered && <span>{hovered?.day}, </span>}</>
+                )}
+                <span>{days[days.length - 1]?.year}</span>
+              </h1>
+              <div className="">
+                <div className="">
+                  <div className="mb-3">
+                    <Button
+                      onClick={() => {
+                        if (currentMonth == 1) {
+                          setCurrentMonth(12);
+                          setCurrentYear(currentYear - 1);
+                        } else {
+                          setCurrentMonth(currentMonth - 1);
+                        }
+                      }}
+                      className="border-0"
+                      icon="arrow-left"
+                    />
+                    {days.length > 26 && (
+                      <Button
+                        onClick={() => {
+                          if (currentMonth == 12) {
+                            setCurrentMonth(1);
+                            setCurrentYear(currentYear + 1);
+                          } else {
+                            setCurrentMonth(currentMonth + 1);
+                          }
+                        }}
+                        className="border-0"
+                        icon="arrow-right"
+                      />
+                    )}
+                  </div>
+                  <div className="month" onMouseLeave={() => setHovered(null)}>
+                    {weekdays.map((x) => (
+                      <div className="weekday">{x}</div>
+                    ))}
+                    {days.map((x) => (
+                      <div
+                        key={x.id}
+                        onClick={() => {
+                          if (x.entries.length > 0) {
+                            deleteEntry(x.entries[0].id);
+                          } else {
+                            addEntry(
+                              multiCtx.currentHabit.id,
+                              new Date(
+                                x.year,
+                                x.monthInt - 1,
+                                x.day
+                              ).toDateString()
+                            );
+                          }
+                        }}
+                        onMouseEnter={() => setHovered(x)}
+                        style={{
+                          backgroundColor: x.entries?.[0]?.habitColor,
+                          border: x.entries?.[0] ? "none" : "",
+                        }}
+                        className={
+                          "day" +
+                          (x.filler ? " filler" : "") +
+                          (hovered === x && !x.filler ? " hovered" : "") +
+                          (selected === x && !x.filler ? " selected-day" : "")
+                        }></div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+      {selected?.entries.length > 0 && (
+        <div className="mt-3">{JSON.stringify(selected)}</div>
+      )}
+    </div>
   );
 }
 
@@ -456,8 +632,18 @@ function Nav({ className }) {
             <Spinner />
           </button>
         )}
-
-        <Button text="habit-helper" className={"border-0 "} />
+        <button
+          onClick={() => {
+            multiCtx.getHabits();
+            multiCtx.getCalendar();
+            multiCtx.setHovered(null);
+          }}
+          className="btn border-0">
+          <i
+            style={{ color: "#8f73ff", fontSize: "1.5rem" }}
+            className="bi bi-infinity me-2"></i>
+          loops
+        </button>
       </ButtonGroup>
       <ButtonGroup size="sm">
         <Button
@@ -480,14 +666,14 @@ function App() {
   const [currentPage, setCurrentPage] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const [settings, setSettings] = React.useState(
-    JSON.parse(localStorage.getItem("habithelper")) || defaultSettings
+    JSON.parse(localStorage.getItem("loops")) || defaultSettings
   );
   const [habits, setHabits] = React.useState([]);
   const [days, setDays] = React.useState([]);
   const [currentHabit, setCurrentHabit] = React.useState(null);
   const [hovered, setHovered] = React.useState(null);
 
-  const [limit, setLimit] = React.useState(14);
+  const [limit, setLimit] = React.useState(30);
 
   const getHabit = (id) => {
     setLoading(true);
@@ -555,7 +741,7 @@ function App() {
   };
 
   React.useEffect(() => {
-    localStorage.setItem("habithelper", JSON.stringify(settings));
+    localStorage.setItem("loops", JSON.stringify(settings));
 
     document.documentElement.setAttribute("data-theme", settings.theme);
   }, [settings]);

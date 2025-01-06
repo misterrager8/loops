@@ -11,6 +11,7 @@ html[data-theme="dark"] {
   --primary-txt: #cccccc;
   --btn-color: #cccccc;
   --btn-hover-text: #000e15;
+  --btn-hover-text2: #8f73ff;
 }
 
 body,
@@ -101,8 +102,6 @@ hr {
 }
 
 .day-outer {
-  width: 14.28%;
-  height: 175px;
   padding: 10px;
 }
 
@@ -131,4 +130,63 @@ input[type="color"] {
   background-color: inherit;
   color: inherit;
   border: 0;
+}
+
+.scroller {
+  grid-template-columns: 14.28% 14.28% 14.28% 14.28% 14.28% 14.28% 14.28%;
+  grid-auto-rows: 175px;
+  display: grid;
+  height: 75vh;
+  overflow-y: auto;
+  border-bottom: 2px solid #8f73ff;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #8f73ff;
+}
+
+::-webkit-scrollbar {
+  background-color: var(--primary-bg);
+  width: 2px;
+}
+
+.month {
+  display: flex;
+  width: 150px;
+  flex-wrap: wrap;
+}
+
+.day {
+  height: 16px;
+  width: 16px;
+  border-radius: 5px;
+  border: 1px solid var(--primary-txt);
+  margin: 2px;
+  cursor: pointer;
+}
+
+.weekday {
+  width: 16.2px;
+  text-align: center;
+  margin: 2px;
+  font-size: 0.8rem;
+}
+
+.filler {
+  border: 0;
+  cursor: unset;
+}
+
+.hovered {
+  background-color: #808080 !important;
+  border: 0;
+}
+
+.selected-day {
+  border: 2px solid #00326f !important;
+}
+
+.today {
+  border-color: blue;
+  border-width: 3px;
 }

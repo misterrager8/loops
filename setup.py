@@ -1,6 +1,6 @@
 import setuptools
 
 setuptools.setup(
-    name="habithelper",
-    entry_points={"console_scripts": ["habithelper=habithelper.__main__:cli"]},
+    name="loops",
+    entry_points={"console_scripts": ["loops=loops.__main__:cli"]},
 )
