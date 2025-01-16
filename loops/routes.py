@@ -151,7 +151,13 @@ def get_habits():
     habits_ = []
 
     try:
-        habits_ = [i.to_dict() for i in Habit.all()]
+        habits_ = [
+            i.to_dict()
+            for i in Habit.all(
+                sort=request.json.get("sortType"),
+                reverse=request.json.get("reverse"),
+            )
+        ]
     except Exception as e:
         success = False
         msg = str(e)

@@ -1,17 +1,16 @@
 :root,
 html[data-theme="light"] {
   --primary-bg: #cccccc;
-  --primary-txt: #000e15;
-  --btn-color: #000e15;
+  --primary-txt: #1a1a1a;
+  --btn-color: #1a1a1a;
   --btn-hover-text: #cccccc;
 }
 
 html[data-theme="dark"] {
-  --primary-bg: #000e15;
+  --primary-bg: #1a1a1a;
   --primary-txt: #cccccc;
   --btn-color: #cccccc;
-  --btn-hover-text: #000e15;
-  --btn-hover-text2: #8f73ff;
+  --btn-hover-text: #1a1a1a;
 }
 
 body,
@@ -92,8 +91,8 @@ hr {
 }
 
 .selected {
-  border-bottom: 1px solid var(--btn-color);
-  border-top: 1px solid var(--btn-color);
+  border-bottom: 1px dotted var(--btn-color);
+  border-top: 1px dotted var(--btn-color);
 }
 
 .label {
@@ -116,8 +115,8 @@ hr {
 input[type="color"] {
   padding: 0 !important;
   border: 0 !important;
-  max-width: 20px !important;
-  height: 20px !important;
+  max-width: 35px !important;
+  height: 35px !important;
   border-radius: 3px !important;
 }
 
@@ -152,13 +151,13 @@ input[type="color"] {
 
 .month {
   display: flex;
-  width: 260px;
+  width: 511px;
   flex-wrap: wrap;
 }
 
 .day {
-  height: 32;
-  width: 32px;
+  height: 60px;
+  width: 60px;
   border-radius: 5px;
   border: 1px solid var(--primary-txt);
   margin: 2px;
@@ -166,7 +165,7 @@ input[type="color"] {
 }
 
 .weekday {
-  width: 32px;
+  width: 60px;
   text-align: center;
   margin: 2px;
   font-size: 0.8rem;
@@ -183,38 +182,13 @@ input[type="color"] {
 }
 
 .selected-day {
-  border: 2px solid #00326f !important;
+  border: 2px solid #ff4800 !important;
 }
 
 .today {
   border-color: blue;
   border-width: 3px;
 }
-
-/* .unempty-5 {
-  background-color: #161b22;
-  border: 0;
-}
-
-.unempty-4 {
-  background-color: #0e4429;
-  border: 0;
-}
-
-.unempty-3 {
-  background-color: #006d32;
-  border: 0;
-}
-
-.unempty-2 {
-  background-color: #26a641;
-  border: 0;
-}
-
-.unempty-1 {
-  background-color: #39d353;
-  border: 0;
-} */
 
 .unempty-1 {
   background-color: var(--primary-txt);
@@ -243,5 +217,13 @@ input[type="color"] {
 .unempty-5 {
   background-color: var(--primary-txt);
   opacity: 100%;
+  border: 0;
+}
+
+.non-btn,
+.non-btn:hover {
+  cursor: unset;
+  background-color: transparent;
+  color: var(--primary-txt);
   border: 0;
 }

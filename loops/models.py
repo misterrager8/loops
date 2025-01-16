@@ -1,4 +1,5 @@
 from calendar import Calendar
+import colorsys
 import datetime
 
 import click
@@ -26,8 +27,37 @@ class Habit(db.Model):
         return Habit.query.get(id)
 
     @classmethod
-    def all(cls):
-        return sorted([i for i in Habit.query.all()], key=lambda x: x.id, reverse=True)
+    def all(cls, sort="id", reverse=False):
+        def hex_to_hsl(hex_color):
+            """Converts a hex color code to HSL values."""
+
+            # Remove the '#' if it's present
+            hex_color = hex_color.lstrip("#")
+
+            # Convert hex to RGB
+            r = int(hex_color[0:2], 16) / 255.0
+            g = int(hex_color[2:4], 16) / 255.0
+            b = int(hex_color[4:6], 16) / 255.0
+
+            # Convert RGB to HSL
+            h, l, s = colorsys.rgb_to_hls(r, g, b)
+
+            # Normalize the values to be between 0 and 1
+            h = h if h <= 1 else h - 1
+            l = l if l <= 1 else l - 1
+            s = s if s <= 1 else s - 1
+
+            return h, s, l
+
+        def func(x):
+            if sort == "id":
+                return x.id
+            elif sort == "name":
+                return x.name
+            elif sort == "color":
+                return hex_to_hsl(x.color)[0]
+
+        return sorted([i for i in Habit.query.all()], key=func, reverse=reverse)
 
     @classmethod
     def delete_all(cls):

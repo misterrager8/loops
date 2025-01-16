@@ -3,6 +3,7 @@ const defaultSettings = {
 };
 
 const MultiContext = React.createContext();
+const AnotherContext = React.createContext();
 
 const api = (url, params, callback) =>
   fetch("/" + url, {
@@ -23,7 +24,7 @@ function Button({ className, type_, onClick, icon, text, size }) {
   return (
     <button
       type={type_}
-      className={className + " btn" + (size === "sm" ? " btn-sm" : "")}
+      className={className + " btn" + (size ? ` btn-${size}` : "")}
       onClick={onClick}>
       {icon && <i className={"bi bi-" + icon + (text ? " me-2" : "")}></i>}
       {text}
@@ -109,7 +110,7 @@ function Dropdown({
         data-bs-toggle="dropdown"
         data-bs-auto-close={autoClose}
         className={classNameBtn + " dropdown-toggle"}>
-        {icon && <Icon name={icon} className="me-1" />}
+        {icon && <Icon name={icon} className="me-2" />}
         {text}
       </a>
       <div id={target} className={classNameMenu + " dropdown-menu"}>
@@ -144,74 +145,6 @@ function Heading({ className, size = 1, icon, text }) {
       {icon && <Icon name={icon} className="me-3" />}
       {text}
     </div>
-  );
-}
-
-function HomePage2({ className }) {
-  const multiCtx = React.useContext(MultiContext);
-  const [name, setName] = React.useState("");
-
-  const onChangeName = (e) => setName(e.target.value);
-
-  const limitOptions = [7, 14, 30, 90];
-
-  React.useEffect(() => {
-    multiCtx.getHabits();
-  }, []);
-
-  React.useEffect(() => {
-    multiCtx.getCalendar();
-  }, [multiCtx.limit]);
-
-  return (
-    <>
-      <div>
-        <div className="row">
-          <div className="col-3">
-            <form
-              className="mb-4"
-              onSubmit={(e) => {
-                e.preventDefault();
-                multiCtx.addHabit(name);
-                setName("");
-              }}>
-              <Input
-                size="sm"
-                onChange={onChangeName}
-                className="label"
-                value={name}
-                placeholder="New Habit"
-              />
-            </form>
-            {multiCtx.habits?.map((x) => (
-              <React.Fragment key={`top-${x.id}`}>
-                <HabitItem item={x} />
-              </React.Fragment>
-            ))}
-          </div>
-          <div className="col-9">
-            <ButtonGroup size="sm" className="mb-3">
-              {limitOptions.map((x) => (
-                <React.Fragment key={x}>
-                  <Button
-                    className={multiCtx.limit === x ? "active" : ""}
-                    onClick={() => multiCtx.setLimit(x)}
-                    text={`${x} Days`}
-                  />
-                </React.Fragment>
-              ))}
-            </ButtonGroup>
-            <div className="scroller">
-              {multiCtx.days.map((x) => (
-                <React.Fragment key={x.date_}>
-                  <DayItem item={x} />
-                </React.Fragment>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
   );
 }
 
@@ -266,34 +199,7 @@ function HomePage({ className = "" }) {
     );
   };
 
-  const addEntry = (id, date) => {
-    api(
-      "add_entry",
-      {
-        id: id,
-        date: date,
-      },
-      (data) => {
-        getMonthWithHabit();
-      }
-    );
-  };
-
-  const deleteEntry = (id) => {
-    api("delete_entry", { id: id }, (data) => getMonthWithHabit());
-  };
-
-  const isToday = (day) => {
-    let today = new Date();
-    return (
-      day.monthInt === today.getMonth() + 1 &&
-      day.day === today.getDate() &&
-      day.year === today.getFullYear()
-    );
-  };
-
   React.useEffect(() => {
-    multiCtx.getHabits();
     if (multiCtx.currentHabit) {
       setSelected(null);
       getMonthWithHabit();
@@ -302,33 +208,32 @@ function HomePage({ className = "" }) {
     }
   }, [currentMonth, currentYear, multiCtx.currentHabit]);
 
+  const contextValue = {
+    selected: selected,
+    setSelected: setSelected,
+    hovered: hovered,
+    setHovered: setHovered,
+    getMonthWithHabit: getMonthWithHabit,
+  };
+
   return (
-    <div>
+    <AnotherContext.Provider value={contextValue}>
       <div className={className + " row"}>
         <div className="col-3">
           <div
             className={"p-1 m-1" + (!multiCtx.currentHabit ? " selected" : "")}>
             <a className="label" onClick={() => multiCtx.setCurrentHabit(null)}>
-              <i className="bi bi-asterisk me-2"></i>
-              <span className="small">All</span>
+              <i
+                className={
+                  "bi me-2 bi-square" + (multiCtx.currentHabit ? "" : "-fill")
+                }></i>
+              <span className="small">All Habits</span>
             </a>
           </div>
+          <AddHabitForm className="my-2 py-2" />
+          <Sorter className="mb-2" />
           {multiCtx.habits.map((x) => (
-            <div
-              className={
-                "p-1 m-1 " +
-                (multiCtx.currentHabit?.id === x.id ? "selected" : "")
-              }>
-              <a
-                className="label"
-                onClick={() => multiCtx.setCurrentHabit(x)}
-                key={x.id}>
-                <i
-                  className="bi bi-square-fill me-2"
-                  style={{ color: x.color }}></i>
-                <span className="small">{x.name}</span>
-              </a>
-            </div>
+            <HabitItem key={x.id} item={x} />
           ))}
         </div>
         <div className="col-9">
@@ -343,71 +248,47 @@ function HomePage({ className = "" }) {
                 )}
                 <span>{days[days.length - 1]?.year}</span>
               </h1>
-              <div className="">
-                <div className="">
-                  <div className="mb-3">
-                    <Button
-                      onClick={() => {
-                        if (currentMonth == 1) {
-                          setCurrentMonth(12);
-                          setCurrentYear(currentYear - 1);
-                        } else {
-                          setCurrentMonth(currentMonth - 1);
-                        }
-                      }}
-                      className="border-0"
-                      icon="arrow-left"
-                    />
-                    {days.length > 26 && (
-                      <Button
-                        onClick={() => {
-                          if (currentMonth == 12) {
-                            setCurrentMonth(1);
-                            setCurrentYear(currentYear + 1);
-                          } else {
-                            setCurrentMonth(currentMonth + 1);
-                          }
-                        }}
-                        className="border-0"
-                        icon="arrow-right"
-                      />
-                    )}
-                  </div>
-                  <div className="month" onMouseLeave={() => setHovered(null)}>
-                    {weekdays.map((x) => (
-                      <div className="weekday">{x}</div>
-                    ))}
-                    {days.map((x) => (
-                      <div
-                        key={x.id}
-                        onClick={() => {
-                          if (x.entries.length > 0) {
-                            deleteEntry(x.entries[0].id);
-                          } else {
-                            addEntry(
-                              multiCtx.currentHabit.id,
-                              new Date(
-                                x.year,
-                                x.monthInt - 1,
-                                x.day
-                              ).toDateString()
-                            );
-                          }
-                        }}
-                        onMouseEnter={() => setHovered(x)}
-                        style={{
-                          backgroundColor: x.entries?.[0]?.habitColor,
-                          border: x.entries?.[0] ? "none" : "",
-                        }}
-                        className={
-                          "day" +
-                          (x.filler ? " filler" : "") +
-                          (hovered === x && !x.filler ? " hovered" : "") +
-                          (selected === x && !x.filler ? " selected-day" : "")
-                        }></div>
-                    ))}
-                  </div>
-                </div>
+              <div className="mb-3">
+                <Button
+                  size="lg"
+                  onClick={() => {
+                    if (currentMonth == 1) {
+                      setCurrentMonth(12);
+                      setCurrentYear(currentYear - 1);
+                    } else {
+                      setCurrentMonth(currentMonth - 1);
+                    }
+                  }}
+                  className="border-0"
+                  icon="arrow-left"
+                />
+                {days.length > 26 && (
+                  <Button
+                    size="lg"
+                    onClick={() => {
+                      if (currentMonth == 12) {
+                        setCurrentMonth(1);
+                        setCurrentYear(currentYear + 1);
+                      } else {
+                        setCurrentMonth(currentMonth + 1);
+                      }
+                    }}
+                    className="border-0"
+                    icon="arrow-right"
+                  />
+                )}
+              </div>
+              <div className="month" onMouseLeave={() => setHovered(null)}>
+                {weekdays.map((x) => (
+                  <div className="weekday">{x}</div>
+                ))}
+                {days.map((x) => (
+                  <DayItem item={x} />
+                ))}
+              </div>
+              <div className="w-25 mt-4">
+                <hr />
+                <EditHabitForm />
               </div>
             </>
           ) : (
@@ -421,77 +302,310 @@ function HomePage({ className = "" }) {
                 )}
                 <span>{days[days.length - 1]?.year}</span>
               </h1>
-              <div className="">
-                <div className="">
-                  <div className="mb-3">
-                    <Button
-                      onClick={() => {
-                        if (currentMonth == 1) {
-                          setCurrentMonth(12);
-                          setCurrentYear(currentYear - 1);
-                        } else {
-                          setCurrentMonth(currentMonth - 1);
-                        }
-                      }}
-                      className="border-0"
-                      icon="arrow-left"
-                    />
-                    {days.length > 26 && (
-                      <Button
-                        onClick={() => {
-                          if (currentMonth == 12) {
-                            setCurrentMonth(1);
-                            setCurrentYear(currentYear + 1);
-                          } else {
-                            setCurrentMonth(currentMonth + 1);
-                          }
-                        }}
-                        className="border-0"
-                        icon="arrow-right"
-                      />
-                    )}
+              <div className="mb-3">
+                <Button
+                  size="lg"
+                  onClick={() => {
+                    if (currentMonth == 1) {
+                      setCurrentMonth(12);
+                      setCurrentYear(currentYear - 1);
+                    } else {
+                      setCurrentMonth(currentMonth - 1);
+                    }
+                  }}
+                  className="border-0"
+                  icon="arrow-left"
+                />
+                {days.length > 26 && (
+                  <Button
+                    size="lg"
+                    onClick={() => {
+                      if (currentMonth == 12) {
+                        setCurrentMonth(1);
+                        setCurrentYear(currentYear + 1);
+                      } else {
+                        setCurrentMonth(currentMonth + 1);
+                      }
+                    }}
+                    className="border-0"
+                    icon="arrow-right"
+                  />
+                )}
+              </div>
+              <div className="month" onMouseLeave={() => setHovered(null)}>
+                {weekdays.map((x) => (
+                  <div className="weekday">{x}</div>
+                ))}
+                {days.map((x) => (
+                  <DayItem item={x} />
+                ))}
+              </div>
+              {selected?.entries?.length > 0 && (
+                <div className="mt-4 d-flex">
+                  <div className="label fw-bold mb-3">
+                    {selected?.entries?.length}
+                    {" entr" + (selected.entries.length > 1 ? "ies" : "y")}
                   </div>
-                  <div className="month" onMouseLeave={() => setHovered(null)}>
-                    {weekdays.map((x) => (
-                      <div className="weekday">{x}</div>
-                    ))}
-                    {days.map((x) => (
-                      <div
-                        key={x.id}
-                        onMouseEnter={() => setHovered(x)}
-                        className={
-                          "day" +
-                          (x.filler ? " filler" : "") +
-                          (hovered === x && !x.filler ? " hovered" : "") +
-                          (selected === x && !x.filler ? " selected-day" : "") +
-                          ` unempty-${
-                            x.entries?.length > 5 ? 5 : x.entries?.length
-                          }`
-                        }></div>
+                  <div className="ps-3">
+                    {selected?.entries.map((x) => (
+                      <div className="m-1">
+                        <i
+                          className="bi bi-square-fill me-2"
+                          style={{ color: x.habitColor }}></i>
+                        <span className="label small">{x.habitName}</span>
+                      </div>
                     ))}
                   </div>
                 </div>
-              </div>
-              {hovered?.entries?.length > 0 && (
-                <>
-                  <div>{hovered?.entries?.length} habits</div>
-                  {hovered?.entries.map((x) => (
-                    <div className="m-1">
-                      <i
-                        className="bi bi-square-fill me-2"
-                        style={{ color: x.habitColor }}></i>
-                      <span>{x.habitName}</span>
-                    </div>
-                  ))}
-                </>
               )}
             </>
           )}
         </div>
       </div>
-      {selected?.entries.length > 0 && (
-        <div className="mt-3">{JSON.stringify(selected)}</div>
+    </AnotherContext.Provider>
+  );
+}
+
+function AddHabitForm({ className = "" }) {
+  const multiCtx = React.useContext(MultiContext);
+  const [name, setName] = React.useState("");
+
+  const onChangeName = (e) => setName(e.target.value);
+
+  const addHabit = (e) => {
+    e.preventDefault();
+    api("add_habit", { name: name }, (data) => {
+      multiCtx.getHabits();
+      setName("");
+    });
+  };
+
+  return (
+    <form
+      onSubmit={(e) => addHabit(e)}
+      className={className + " input-group input-group-sm"}>
+      <Input onChange={onChangeName} value={name} placeholder="New Habit" />
+    </form>
+  );
+}
+
+function EditHabitForm({ className = "" }) {
+  const multiCtx = React.useContext(MultiContext);
+  const anotherCtx = React.useContext(AnotherContext);
+
+  const [saved, setSaved] = React.useState(false);
+  const [name, setName] = React.useState("");
+  const [color, setColor] = React.useState("");
+
+  const onChangeName = (e) => setName(e.target.value);
+  const onChangeColor = (e) => setColor(e.target.value);
+
+  const editHabit = (e) => {
+    e.preventDefault();
+    api(
+      "edit_habit",
+      {
+        id: multiCtx.currentHabit.id,
+        name: name,
+        color: color,
+      },
+      (data) => {
+        anotherCtx.getMonthWithHabit();
+        multiCtx.getHabits();
+        setSaved(true);
+        setTimeout(() => setSaved(false), 1000);
+      }
+    );
+  };
+
+  React.useEffect(() => {
+    if (multiCtx.currentHabit) {
+      setName(multiCtx.currentHabit?.name);
+      setColor(multiCtx.currentHabit?.color);
+    }
+  }, [multiCtx.currentHabit]);
+
+  return (
+    <form
+      onSubmit={(e) => editHabit(e)}
+      className={className + " input-group input-group-lg"}>
+      <Input type_="color" onChange={onChangeColor} value={color} />
+      <Input
+        className="label py-0 border-0"
+        onChange={onChangeName}
+        value={name}
+      />
+      <Button
+        className="border-0"
+        icon={saved ? "check-lg" : "pen"}
+        type_="submit"
+      />
+    </form>
+  );
+}
+
+function HabitItem({ item, className = "" }) {
+  const multiCtx = React.useContext(MultiContext);
+
+  const [deleting, setDeleting] = React.useState(false);
+
+  const deleteHabit = () => {
+    api("delete_habit", { id: item.id }, (data) => {
+      multiCtx.getHabits();
+      multiCtx.setCurrentHabit(null);
+    });
+  };
+
+  return (
+    <div
+      className={
+        className +
+        " p-1 m-1 between " +
+        (multiCtx.currentHabit?.id === item.id ? "selected" : "")
+      }>
+      <a
+        className="label"
+        onClick={() => multiCtx.setCurrentHabit(item)}
+        key={item.id}>
+        <i className="bi bi-square-fill me-2" style={{ color: item.color }}></i>
+        <span className="small">{item.name}</span>
+      </a>
+      {multiCtx.currentHabit?.id == item.id && (
+        <ButtonGroup size="sm">
+          {deleting && (
+            <Button
+              className="border-0 text-danger"
+              icon="question-lg"
+              onClick={() => deleteHabit()}
+            />
+          )}
+          <Button
+            className="border-0 text-danger"
+            icon="trash2"
+            onClick={() => setDeleting(!deleting)}
+          />
+        </ButtonGroup>
       )}
+    </div>
+  );
+}
+
+function DayItem({ item, className = "" }) {
+  const anotherCtx = React.useContext(AnotherContext);
+  const multiCtx = React.useContext(MultiContext);
+
+  const [deleting, setDeleting] = React.useState(false);
+
+  const addEntry = (id, date) => {
+    api(
+      "add_entry",
+      {
+        id: id,
+        date: date,
+      },
+      (data) => anotherCtx.getMonthWithHabit()
+    );
+  };
+
+  const deleteEntry = (id) => {
+    api("delete_entry", { id: id }, (data) => {
+      anotherCtx.getMonthWithHabit();
+      setDeleting(false);
+    });
+  };
+
+  return (
+    <>
+      {multiCtx.currentHabit ? (
+        <div
+          key={item.id}
+          onClick={() => {
+            if (item.entries.length > 0) {
+              setDeleting(!deleting);
+            } else {
+              addEntry(
+                multiCtx.currentHabit.id,
+                new Date(item.year, item.monthInt - 1, item.day).toDateString()
+              );
+            }
+          }}
+          onMouseEnter={() => anotherCtx.setHovered(item)}
+          style={{
+            backgroundColor: item.entries?.[0]?.habitColor,
+            border: item.entries?.[0] ? "none" : "",
+          }}
+          className={
+            "day" +
+            (item.filler ? " filler" : "") +
+            (anotherCtx.hovered === item && !item.filler ? " hovered" : "") +
+            (anotherCtx.selected === item && !item.filler
+              ? " selected-day"
+              : "")
+          }></div>
+      ) : (
+        <div
+          key={item.id}
+          onClick={() =>
+            anotherCtx.setSelected(item === anotherCtx.selected ? null : item)
+          }
+          onMouseEnter={() => anotherCtx.setHovered(item)}
+          className={
+            "day" +
+            (item.filler ? " filler" : "") +
+            (anotherCtx.hovered === item && !item.filler ? " hovered" : "") +
+            (anotherCtx.selected === item && !item.filler
+              ? " selected-day"
+              : "") +
+            ` unempty-${item.entries?.length > 5 ? 5 : item.entries?.length} ` +
+            className
+          }></div>
+      )}
+      {deleting && (
+        <div className="day d-flex border-danger">
+          <a
+            className="m-auto text-danger small"
+            onClick={() => deleteEntry(item.entries[0].id)}>
+            Delete
+          </a>
+        </div>
+      )}
+    </>
+  );
+}
+
+function Sorter({ className = "" }) {
+  const multiCtx = React.useContext(MultiContext);
+
+  return (
+    <div className={className + " between"}>
+      <div className="btn-group">
+        <Button
+          className="border-0 pe-1"
+          onClick={() => multiCtx.setReverse(!multiCtx.reverse)}
+          icon={multiCtx.reverse ? "sort-down" : "sort-down-alt"}
+        />
+        <Dropdown
+          classNameMenu="text-center"
+          target="sort"
+          text={multiCtx.sortType?.label}
+          classNameBtn="btn btn-sm border-0">
+          {multiCtx.sortOptions.map((x) => (
+            <>
+              {x.label !== multiCtx.sortType?.label && (
+                <a
+                  onClick={() => multiCtx.setSortType(x)}
+                  className="dropdown-item small">
+                  {x.label}
+                </a>
+              )}
+            </>
+          ))}
+        </Dropdown>
+      </div>
+      <span className="btn btn-sm border-0 non-btn">
+        {multiCtx.habits.length}
+        {" Habit" + (multiCtx.habits.length === 1 ? "" : "s")}
+      </span>
     </div>
   );
 }
@@ -502,224 +616,6 @@ function Display({ className }) {
   return (
     <div className={className + " py-4"}>
       <HomePage />
-    </div>
-  );
-}
-
-function HabitItem({ item, className = "" }) {
-  const multiCtx = React.useContext(MultiContext);
-  const [name, setName] = React.useState("");
-  const [color, setColor] = React.useState("");
-  const [saved, setSaved] = React.useState(false);
-  const [deleting, setDeleting] = React.useState(false);
-
-  const onChangeName = (e) => setName(e.target.value);
-  const onChangeColor = (e) => setColor(e.target.value);
-
-  React.useEffect(() => {
-    setName(item.name);
-    setColor(item.color);
-  }, []);
-
-  const editHabit = (e) => {
-    e.preventDefault();
-    api("edit_habit", { id: item.id, name: name, color: color }, (data) => {
-      multiCtx.getHabits();
-      multiCtx.getCalendar();
-      setSaved(true);
-      setTimeout(() => setSaved(false), 1000);
-    });
-  };
-
-  const deleteHabit = () => {
-    api("delete_habit", { id: item.id }, (data) => {
-      multiCtx.getHabits();
-      multiCtx.getCalendar();
-    });
-    m;
-  };
-
-  return (
-    <React.Fragment>
-      <form
-        onSubmit={(e) => editHabit(e)}
-        className={
-          "input-group input-group-sm mb-1 " +
-          (multiCtx.hovered?.habitId === item.id ? "selected" : "")
-        }>
-        {item.entries[0]?.entryDateFormat2 !== new Date().toDateString() && (
-          <Button
-            type_="button"
-            className="border-0"
-            icon="check-lg"
-            onClick={() => {
-              multiCtx.addEntry(item.id, new Date().toDateString());
-            }}
-          />
-        )}
-        {saved && <Button className="border-0" icon="floppy2" />}
-        <Input
-          className="m-1"
-          type_="color"
-          onChange={onChangeColor}
-          value={color}
-        />
-        <Input
-          value={name}
-          onChange={onChangeName}
-          className="py-0 border-0 label"
-        />
-        <Button type_="submit" className="d-none" />
-        {item.streaks && (
-          <span className="input-group-text">
-            <i className="bi bi-caret-up-fill text-success me-2"></i>
-            <span>{item.streaks}</span>
-          </span>
-        )}
-        {deleting && (
-          <Button
-            className="border-0"
-            onClick={() => deleteHabit()}
-            type_="button"
-            icon="question-lg"
-          />
-        )}
-        <Button
-          className="border-0"
-          onClick={() => setDeleting(!deleting)}
-          type_="button"
-          icon="x-lg"
-        />
-      </form>
-    </React.Fragment>
-  );
-}
-
-function DayItem({ item, className = "" }) {
-  const multiCtx = React.useContext(MultiContext);
-  const [deleting, setDeleting] = React.useState(false);
-  const [clearing, setClearing] = React.useState(false);
-
-  const deleteEntry = (id) => {
-    api("delete_entry", { id: id }, (data) => {
-      multiCtx.getHabits();
-      multiCtx.getCalendar();
-      multiCtx.setHovered(null);
-    });
-  };
-
-  const excludeHabits = () => {
-    let ids = [];
-    for (let x = 0; x < item.entries.length; x++) {
-      ids.push(item.entries[x].habitId);
-    }
-    return ids;
-  };
-
-  const clearAll = () => {
-    api(
-      "clear_day",
-      {
-        date: new Date(item.year, item.month, item.day).toDateString(),
-      },
-      (data) => multiCtx.getCalendar()
-    );
-  };
-
-  return (
-    <div className="day-outer">
-      <div className="day-inner position-relative">
-        <Dropdown
-          autoClose="outside"
-          className="text-center mb-2"
-          classNameBtn="label small"
-          target="add-entry"
-          text={item.date_}>
-          {multiCtx.habits.map((x) => (
-            <React.Fragment key={x.id}>
-              {!excludeHabits().includes(x.id) && (
-                <a
-                  onClick={() =>
-                    multiCtx.addEntry(
-                      x.id,
-                      new Date(item.year, item.month, item.day).toDateString()
-                    )
-                  }
-                  className="dropdown-item label small">
-                  <i
-                    className="bi bi-square-fill me-2"
-                    style={{ color: x.color }}></i>
-                  <span>{x.name}</span>
-                </a>
-              )}
-            </React.Fragment>
-          ))}
-          {item.entries.length > 0 && (
-            <>
-              <hr className="my-2 mx-3" />
-              <div className="d-flex">
-                <ButtonGroup size="sm" className="mx-auto">
-                  <Button
-                    onClick={() => setClearing(!clearing)}
-                    className="border-0"
-                    text="Clear All"
-                  />
-                  {clearing && (
-                    <Button
-                      icon="question-lg"
-                      onClick={() => clearAll()}
-                      className="border-0"
-                    />
-                  )}
-                </ButtonGroup>
-              </div>
-            </>
-          )}
-        </Dropdown>
-        <div>
-          {item.entries.map((y) => (
-            <i
-              key={y.id}
-              onClick={() => {
-                multiCtx.setHovered(y);
-              }}
-              style={{ color: y.habitColor }}
-              className={
-                "cursor bi bi-check-square-fill p-1 " +
-                (multiCtx.hovered === y ? "selected-entry" : "")
-              }></i>
-          ))}
-        </div>
-        <div className="position-absolute bottom-0">
-          {multiCtx.hovered?.entryDate === item.entries[0]?.entryDate &&
-            multiCtx.hovered && (
-              <div className="mb-2">
-                <div className="label small">{multiCtx.hovered?.habitName}</div>
-                <div className="d-flex">
-                  <ButtonGroup size="sm" className="mx-auto">
-                    <Button
-                      icon="arrow-left"
-                      className="border-0"
-                      onClick={() => multiCtx.setHovered(null)}
-                    />
-                    <Button
-                      className="border-0"
-                      icon="x-lg"
-                      onClick={() => setDeleting(!deleting)}
-                    />
-                    {deleting && (
-                      <Button
-                        className="border-0"
-                        icon="question-lg"
-                        onClick={() => deleteEntry(multiCtx.hovered?.id)}
-                      />
-                    )}
-                  </ButtonGroup>
-                </div>
-              </div>
-            )}
-        </div>
-      </div>
     </div>
   );
 }
@@ -776,7 +672,25 @@ function App() {
   const [currentHabit, setCurrentHabit] = React.useState(null);
   const [hovered, setHovered] = React.useState(null);
 
+  const [sortType, setSortType] = React.useState(null);
+  const [reverse, setReverse] = React.useState(false);
+
   const [limit, setLimit] = React.useState(30);
+
+  const sortOptions = [
+    {
+      label: "Color",
+      value: "color",
+    },
+    {
+      label: "Date Added",
+      value: "id",
+    },
+    {
+      label: "Name",
+      value: "name",
+    },
+  ];
 
   const getHabit = (id) => {
     setLoading(true);
@@ -788,10 +702,14 @@ function App() {
 
   const getHabits = () => {
     setLoading(true);
-    api("get_habits", {}, (data) => {
-      setHabits(data.habits);
-      setLoading(false);
-    });
+    api(
+      "get_habits",
+      { sortType: sortType?.value, reverse: reverse },
+      (data) => {
+        setHabits(data.habits);
+        setLoading(false);
+      }
+    );
   };
 
   const addHabit = (name) => {
@@ -814,6 +732,16 @@ function App() {
       setLoading(false);
     });
   };
+
+  React.useEffect(() => {
+    if (sortType) {
+      getHabits();
+    }
+  }, [sortType, reverse]);
+
+  React.useEffect(() => {
+    setSortType(sortOptions[0]);
+  }, []);
 
   const contextValue = {
     loading: loading,
@@ -841,6 +769,12 @@ function App() {
     setLimit: setLimit,
     days: days,
     setDays: setDays,
+
+    sortType: sortType,
+    setSortType: setSortType,
+    reverse: reverse,
+    setReverse: setReverse,
+    sortOptions: sortOptions,
   };
 
   React.useEffect(() => {
