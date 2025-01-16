@@ -1,0 +1,16 @@
+:root,
+html[data-theme="light"] {
+  --primary-bg: #ebe1ab;
+  --primary-txt: #1a1a1a;
+
+  --btn-color: #305850;
+  --btn-hover-text: #ebe1ab;
+}
+
+html[data-theme="dark"] {
+  --primary-bg: #101e1b;
+  --primary-txt: #cccccc;
+
+  --btn-color: #ebe1ab;
+  --btn-hover-text: #101e1b;
+}

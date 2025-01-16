@@ -1,17 +1,4 @@
-:root,
-html[data-theme="light"] {
-  --primary-bg: #cccccc;
-  --primary-txt: #1a1a1a;
-  --btn-color: #1a1a1a;
-  --btn-hover-text: #cccccc;
-}
-
-html[data-theme="dark"] {
-  --primary-bg: #1a1a1a;
-  --primary-txt: #cccccc;
-  --btn-color: #cccccc;
-  --btn-hover-text: #1a1a1a;
-}
+@import "./colors.css";
 
 body,
 .modal-content {

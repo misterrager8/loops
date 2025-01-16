@@ -332,7 +332,7 @@ function HomePage({ className = "" }) {
     <AnotherContext.Provider value={contextValue}>
       {multiCtx.currentUser ? (
         <div className={className + " row"}>
-          <div className="col-3">
+          <div className="col-xl-3">
             <div
               className={
                 "p-1 m-1" + (!multiCtx.currentHabit ? " selected" : "")
@@ -353,134 +353,141 @@ function HomePage({ className = "" }) {
               <HabitItem key={x.id} item={x} />
             ))}
           </div>
-          <div className="col-9">
-            {multiCtx.currentHabit ? (
-              <>
-                <h1 className="mb-3">
-                  <span>{days[days.length - 1]?.monthName}</span>{" "}
-                  {selected ? (
-                    <span>{selected?.day}, </span>
-                  ) : (
-                    <>{hovered && <span>{hovered?.day}, </span>}</>
-                  )}
-                  <span>{days[days.length - 1]?.year}</span>
-                </h1>
-                <div className="mb-3">
-                  <Button
-                    size="lg"
-                    onClick={() => {
-                      if (currentMonth == 1) {
-                        setCurrentMonth(12);
-                        setCurrentYear(currentYear - 1);
-                      } else {
-                        setCurrentMonth(currentMonth - 1);
-                      }
-                    }}
-                    className="border-0"
-                    icon="arrow-left"
-                  />
-                  {days.length > 26 && (
+          <div className="col-xl-9 d-flex">
+            <div className="m-auto">
+              {multiCtx.currentHabit ? (
+                <>
+                  <h1 className="mb-3">
+                    <span>{days[days.length - 1]?.monthName}</span>{" "}
+                    {selected ? (
+                      <span>{selected?.day}, </span>
+                    ) : (
+                      <>{hovered && <span>{hovered?.day}, </span>}</>
+                    )}
+                    <span>{days[days.length - 1]?.year}</span>
+                  </h1>
+                  <div className="mb-3">
                     <Button
                       size="lg"
                       onClick={() => {
-                        if (currentMonth == 12) {
-                          setCurrentMonth(1);
-                          setCurrentYear(currentYear + 1);
+                        if (currentMonth == 1) {
+                          setCurrentMonth(12);
+                          setCurrentYear(currentYear - 1);
                         } else {
-                          setCurrentMonth(currentMonth + 1);
+                          setCurrentMonth(currentMonth - 1);
                         }
                       }}
                       className="border-0"
-                      icon="arrow-right"
+                      icon="arrow-left"
                     />
-                  )}
-                </div>
-                <div className="month" onMouseLeave={() => setHovered(null)}>
-                  {weekdays.map((x) => (
-                    <div className="weekday">{x}</div>
-                  ))}
-                  {days.map((x) => (
-                    <DayItem item={x} />
-                  ))}
-                </div>
-                <div className="w-25 mt-4">
-                  <hr />
-                  <EditHabitForm />
-                </div>
-              </>
-            ) : (
-              <>
-                <h1 className="mb-3">
-                  <span>{days[days.length - 1]?.monthName}</span>{" "}
-                  {selected ? (
-                    <span>{selected?.day}, </span>
-                  ) : (
-                    <>{hovered && <span>{hovered?.day}, </span>}</>
-                  )}
-                  <span>{days[days.length - 1]?.year}</span>
-                </h1>
-                <div className="mb-3">
-                  <Button
-                    size="lg"
-                    onClick={() => {
-                      if (currentMonth == 1) {
-                        setCurrentMonth(12);
-                        setCurrentYear(currentYear - 1);
-                      } else {
-                        setCurrentMonth(currentMonth - 1);
-                      }
-                    }}
-                    className="border-0"
-                    icon="arrow-left"
-                  />
-                  {days.length > 26 && (
-                    <Button
-                      size="lg"
-                      onClick={() => {
-                        if (currentMonth == 12) {
-                          setCurrentMonth(1);
-                          setCurrentYear(currentYear + 1);
-                        } else {
-                          setCurrentMonth(currentMonth + 1);
-                        }
-                      }}
-                      className="border-0"
-                      icon="arrow-right"
-                    />
-                  )}
-                </div>
-                <div className="month" onMouseLeave={() => setHovered(null)}>
-                  {weekdays.map((x) => (
-                    <div className="weekday">{x}</div>
-                  ))}
-                  {days.map((x) => (
-                    <DayItem item={x} />
-                  ))}
-                </div>
-                {selected?.entries?.length > 0 && (
-                  <div className="mt-4 d-flex">
-                    <div className="label fw-bold mb-3">
-                      {selected?.entries?.length}
-                      {" entr" + (selected.entries.length > 1 ? "ies" : "y")}
-                    </div>
-                    <div className="ps-3">
-                      {selected?.entries.map((x) => (
-                        <div className="m-1">
-                          <i
-                            className="bi bi-square-fill me-2"
-                            style={{ color: x.habitColor }}></i>
-                          <span className="label small">{x.habitName}</span>
-                        </div>
-                      ))}
-                    </div>
+                    {days.length > 26 && (
+                      <Button
+                        size="lg"
+                        onClick={() => {
+                          if (currentMonth == 12) {
+                            setCurrentMonth(1);
+                            setCurrentYear(currentYear + 1);
+                          } else {
+                            setCurrentMonth(currentMonth + 1);
+                          }
+                        }}
+                        className="border-0"
+                        icon="arrow-right"
+                      />
+                    )}
                   </div>
-                )}
-              </>
-            )}
+                  <div className="month" onMouseLeave={() => setHovered(null)}>
+                    {weekdays.map((x) => (
+                      <div className="weekday">{x}</div>
+                    ))}
+                    {days.map((x) => (
+                      <DayItem item={x} />
+                    ))}
+                  </div>
+                  <div className="w-75 mt-4">
+                    <hr />
+                    <EditHabitForm />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <h1 className="mb-3">
+                    <span>{days[days.length - 1]?.monthName}</span>{" "}
+                    {selected ? (
+                      <span>{selected?.day}, </span>
+                    ) : (
+                      <>{hovered && <span>{hovered?.day}, </span>}</>
+                    )}
+                    <span>{days[days.length - 1]?.year}</span>
+                  </h1>
+                  <div className="mb-3">
+                    <Button
+                      size="lg"
+                      onClick={() => {
+                        if (currentMonth == 1) {
+                          setCurrentMonth(12);
+                          setCurrentYear(currentYear - 1);
+                        } else {
+                          setCurrentMonth(currentMonth - 1);
+                        }
+                      }}
+                      className="border-0"
+                      icon="arrow-left"
+                    />
+                    {days.length > 26 && (
+                      <Button
+                        size="lg"
+                        onClick={() => {
+                          if (currentMonth == 12) {
+                            setCurrentMonth(1);
+                            setCurrentYear(currentYear + 1);
+                          } else {
+                            setCurrentMonth(currentMonth + 1);
+                          }
+                        }}
+                        className="border-0"
+                        icon="arrow-right"
+                      />
+                    )}
+                  </div>
+                  <div className="month" onMouseLeave={() => setHovered(null)}>
+                    {weekdays.map((x) => (
+                      <div className="weekday">{x}</div>
+                    ))}
+                    {days.map((x) => (
+                      <DayItem item={x} />
+                    ))}
+                  </div>
+                  {selected?.entries?.length > 0 && (
+                    <div className="mt-4 d-flex">
+                      <div className="label fw-bold mb-3">
+                        {selected?.entries?.length}
+                        {" entr" + (selected.entries.length > 1 ? "ies" : "y")}
+                      </div>
+                      <div className="ps-3">
+                        {selected?.entries.map((x) => (
+                          <div className="m-1">
+                            <i
+                              className="bi bi-square-fill me-2"
+                              style={{ color: x.habitColor }}></i>
+                            <span className="label small">{x.habitName}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
           </div>
         </div>
       ) : (
-        <div>Log In or Sign Up</div>
+        <div className="d-flex">
+          <div className="m-auto row w-50">
+            <LoginForm className="col-xl-6 p-3" />
+            <SignupForm className="col-xl-6 p-3" />
+          </div>
+        </div>
       )}
     </AnotherContext.Provider>
   );
@@ -764,29 +771,24 @@ function Nav({ className }) {
             multiCtx.setHovered(null);
           }}
           className="btn border-0">
-          <i
-            style={{ color: "#8f73ff", fontSize: "1.5rem" }}
-            className="bi bi-infinity me-2"></i>
+          <i style={{ color: "#8f73ff" }} className="bi bi-infinity me-2"></i>
           loops
         </button>
       </ButtonGroup>
       <div className="btn-group btn-group-sm">
-        <Dropdown
-          className="btn-group"
-          classNameBtn="btn"
-          icon="person-fill"
-          text={multiCtx.currentUser?.username || "Log In / Sign Up"}>
-          {multiCtx.currentUser ? (
-            <a className="dropdown-item" onClick={() => logout()}>
+        {multiCtx.currentUser && (
+          <Dropdown
+            className="btn-group btn-group-sm"
+            classNameBtn="btn border-0"
+            icon="person-fill"
+            text={multiCtx.currentUser?.username || "Log In / Sign Up"}>
+            <a
+              className="dropdown-item small text-center"
+              onClick={() => logout()}>
               Log Out
             </a>
-          ) : (
-            <>
-              <LoginForm />
-              <SignupForm />
-            </>
-          )}
-        </Dropdown>
+          </Dropdown>
+        )}
         <ButtonGroup size="sm">
           <Button
             text={multiCtx.settings.theme}
