@@ -4,3 +4,4 @@ flask_sqlalchemy==3.1.1
 PyMySQL==1.0.3
 python-dotenv==1.0.1
 setuptools==63.1.0
+gunicorn

@@ -1,13 +1,15 @@
 import datetime
 import random
-
 # from datetime import datetime
 from pathlib import Path
 
-import click
 from flask import current_app, render_template, request
+from flask_login import current_user, login_required, login_user, logout_user
+from werkzeug.security import check_password_hash, generate_password_hash
 
-from loops.models import Day, Entry, Habit
+from loops.models import Day, Entry, Habit, User
+
+from . import login_manager
 
 
 @current_app.route("/")
@@ -15,6 +17,80 @@ def index():
     return render_template(
         "index.html", debug=current_app.config.get("ENV") == "development"
     )
+
+
+@current_app.post("/signup")
+def signup():
+    success = True
+    msg = ""
+    user_ = None
+
+    try:
+        username = request.json.get("username")
+        password = request.json.get("password")
+        password_confirm = request.json.get("passwordConfirm")
+
+        if password == password_confirm:
+            user__ = User(
+                username=username,
+                password=generate_password_hash(password),
+            )
+
+            user__.add()
+            login_user(user__)
+
+            user_ = user__.todict()
+
+    except Exception as e:
+        success = False
+        msg = str(e)
+
+    return {"success": success, "msg": msg, "user": user_}
+
+
+@login_manager.user_loader
+def load_user(id_: int):
+    return User.query.get(id_)
+
+
+@current_app.post("/login")
+def login():
+    success = True
+    msg = ""
+    user_ = None
+
+    try:
+        username = request.json.get("username")
+        password = request.json.get("password")
+
+        user__: User = User.query.filter_by(username=username).first()
+        if user__ and check_password_hash(user__.password, password):
+            user_ = user__.todict()
+            login_user(user__)
+        else:
+            success = False
+            msg = "User not found, Try again"
+
+    except Exception as e:
+        success = False
+        msg = str(e)
+
+    return {"success": success, "msg": msg, "user": user_}
+
+
+@current_app.post("/logout")
+def logout():
+    success = True
+    msg = ""
+
+    try:
+        logout_user()
+        success = True
+    except Exception as e:
+        success = False
+        msg = str(e)
+
+    return {"success": success, "msg": msg}
 
 
 @current_app.post("/about")
@@ -37,12 +113,14 @@ def about():
 
 
 @current_app.post("/add_habit")
+@login_required
 def add_habit():
     success = True
     msg = ""
 
     try:
         habit_ = Habit(
+            user_id=current_user.id,
             name=request.json.get("name"),
             start_date=datetime.date.today(),
             frequency="daily",
@@ -61,6 +139,7 @@ def add_habit():
 
 
 @current_app.post("/add_entry")
+@login_required
 def add_entry():
     success = True
     msg = ""
@@ -73,8 +152,7 @@ def add_entry():
             str(i.entry_date) for i in habit_.entries
         ]:
             entry_ = Entry(
-                entry_date=date_,
-                habit_id=habit_.id,
+                entry_date=date_, habit_id=habit_.id, user_id=current_user.id
             )
             entry_.add()
     except Exception as e:
@@ -145,6 +223,7 @@ def delete_entry():
 
 
 @current_app.post("/get_habits")
+@login_required
 def get_habits():
     success = True
     msg = ""
@@ -154,6 +233,7 @@ def get_habits():
         habits_ = [
             i.to_dict()
             for i in Habit.all(
+                current_user.id,
                 sort=request.json.get("sortType"),
                 reverse=request.json.get("reverse"),
             )
@@ -170,13 +250,14 @@ def get_habits():
 
 
 @current_app.post("/get_calendar")
+@login_required
 def get_calendar():
     success = True
     msg = ""
     days = []
 
     try:
-        days = Day.get_calendar(limit=int(request.json.get("limit")))
+        days = Day.get_calendar(current_user.id, limit=int(request.json.get("limit")))
     except Exception as e:
         success = False
         msg = str(e)
@@ -212,6 +293,7 @@ def get_month_with_habit():
 
 
 @current_app.post("/get_month")
+@login_required
 def get_month():
     success = True
     msg = ""
@@ -221,6 +303,7 @@ def get_month():
         days = Day.get_month(
             int(request.json.get("month")),
             int(request.json.get("year")),
+            current_user.id,
         )
     except Exception as e:
         success = False

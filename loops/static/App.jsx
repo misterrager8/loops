@@ -148,6 +148,107 @@ function Heading({ className, size = 1, icon, text }) {
   );
 }
 
+function SignupForm({ className = "" }) {
+  const multiCtx = React.useContext(MultiContext);
+
+  const [username, setUsername] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [passwordConfirm, setPasswordConfirm] = React.useState("");
+
+  const onChangeUsername = (e) => setUsername(e.target.value);
+  const onChangePassword = (e) => setPassword(e.target.value);
+  const onChangePasswordConfirm = (e) => setPasswordConfirm(e.target.value);
+
+  const signup = (e) => {
+    e.preventDefault();
+    api(
+      "signup",
+      {
+        username: username,
+        password: password,
+        passwordConfirm: passwordConfirm,
+      },
+      (data) => {
+        multiCtx.setCurrentUser(data.user);
+      }
+    );
+  };
+
+  return (
+    <form onSubmit={(e) => signup(e)} className={className}>
+      <Input
+        onChange={onChangeUsername}
+        value={username}
+        className="mb-1"
+        placeholder="Username"
+        size="sm"
+      />
+      <Input
+        onChange={onChangePassword}
+        value={password}
+        className="mb-1"
+        type_="password"
+        placeholder="Password"
+        size="sm"
+      />
+      <Input
+        onChange={onChangePasswordConfirm}
+        value={passwordConfirm}
+        className="mb-1"
+        type_="password"
+        placeholder="Confirm Password"
+        size="sm"
+      />
+      <Button size="sm" type_="submit" text="Sign Up" className="w-100" />
+    </form>
+  );
+}
+
+function LoginForm({ className = "" }) {
+  const multiCtx = React.useContext(MultiContext);
+
+  const [username, setUsername] = React.useState("");
+  const [password, setPassword] = React.useState("");
+
+  const onChangeUsername = (e) => setUsername(e.target.value);
+  const onChangePassword = (e) => setPassword(e.target.value);
+
+  const login = (e) => {
+    e.preventDefault();
+    api(
+      "login",
+      {
+        username: username,
+        password: password,
+      },
+      (data) => {
+        multiCtx.setCurrentUser(data.user);
+      }
+    );
+  };
+
+  return (
+    <form onSubmit={(e) => login(e)} className={className}>
+      <Input
+        onChange={onChangeUsername}
+        value={username}
+        className="mb-1"
+        placeholder="Username"
+        size="sm"
+      />
+      <Input
+        onChange={onChangePassword}
+        value={password}
+        className="mb-1"
+        type_="password"
+        placeholder="Password"
+        size="sm"
+      />
+      <Button size="sm" type_="submit" text="Log In" className="w-100" />
+    </form>
+  );
+}
+
 function HomePage({ className = "" }) {
   const multiCtx = React.useContext(MultiContext);
   const [currentMonth, setCurrentMonth] = React.useState(
@@ -182,21 +283,22 @@ function HomePage({ className = "" }) {
   };
 
   const getMonth = () => {
-    api(
-      "get_month",
-      {
-        month: currentMonth,
-        year: currentYear,
-      },
-      (data) => {
-        let days_ = data.days;
+    multiCtx.currentUser &&
+      api(
+        "get_month",
+        {
+          month: currentMonth,
+          year: currentYear,
+        },
+        (data) => {
+          let days_ = data.days;
 
-        let filler = Array(days_[0].weekdayInt + 1).fill({ filler: true });
-        let filled = filler.concat(days_);
+          let filler = Array(days_[0].weekdayInt + 1).fill({ filler: true });
+          let filled = filler.concat(days_);
 
-        setDays(days_[0].weekdayInt + 1 == 7 ? days_ : filled);
-      }
-    );
+          setDays(days_[0].weekdayInt + 1 == 7 ? days_ : filled);
+        }
+      );
   };
 
   React.useEffect(() => {
@@ -208,6 +310,16 @@ function HomePage({ className = "" }) {
     }
   }, [currentMonth, currentYear, multiCtx.currentHabit]);
 
+  React.useEffect(() => {
+    multiCtx.setCurrentHabit(null);
+    if (multiCtx.currentUser) {
+      localStorage.setItem("loops-user", JSON.stringify(multiCtx.currentUser));
+      getMonth();
+    } else {
+      localStorage.removeItem("loops-user");
+    }
+  }, [multiCtx.currentUser]);
+
   const contextValue = {
     selected: selected,
     setSelected: setSelected,
@@ -218,150 +330,158 @@ function HomePage({ className = "" }) {
 
   return (
     <AnotherContext.Provider value={contextValue}>
-      <div className={className + " row"}>
-        <div className="col-3">
-          <div
-            className={"p-1 m-1" + (!multiCtx.currentHabit ? " selected" : "")}>
-            <a className="label" onClick={() => multiCtx.setCurrentHabit(null)}>
-              <i
-                className={
-                  "bi me-2 bi-square" + (multiCtx.currentHabit ? "" : "-fill")
-                }></i>
-              <span className="small">All Habits</span>
-            </a>
+      {multiCtx.currentUser ? (
+        <div className={className + " row"}>
+          <div className="col-3">
+            <div
+              className={
+                "p-1 m-1" + (!multiCtx.currentHabit ? " selected" : "")
+              }>
+              <a
+                className="label"
+                onClick={() => multiCtx.setCurrentHabit(null)}>
+                <i
+                  className={
+                    "bi me-2 bi-square" + (multiCtx.currentHabit ? "" : "-fill")
+                  }></i>
+                <span className="small">All Habits</span>
+              </a>
+            </div>
+            <AddHabitForm className="my-2 py-2" />
+            <Sorter className="mb-2" />
+            {multiCtx.habits.map((x) => (
+              <HabitItem key={x.id} item={x} />
+            ))}
           </div>
-          <AddHabitForm className="my-2 py-2" />
-          <Sorter className="mb-2" />
-          {multiCtx.habits.map((x) => (
-            <HabitItem key={x.id} item={x} />
-          ))}
-        </div>
-        <div className="col-9">
-          {multiCtx.currentHabit ? (
-            <>
-              <h1 className="mb-3">
-                <span>{days[days.length - 1]?.monthName}</span>{" "}
-                {selected ? (
-                  <span>{selected?.day}, </span>
-                ) : (
-                  <>{hovered && <span>{hovered?.day}, </span>}</>
-                )}
-                <span>{days[days.length - 1]?.year}</span>
-              </h1>
-              <div className="mb-3">
-                <Button
-                  size="lg"
-                  onClick={() => {
-                    if (currentMonth == 1) {
-                      setCurrentMonth(12);
-                      setCurrentYear(currentYear - 1);
-                    } else {
-                      setCurrentMonth(currentMonth - 1);
-                    }
-                  }}
-                  className="border-0"
-                  icon="arrow-left"
-                />
-                {days.length > 26 && (
+          <div className="col-9">
+            {multiCtx.currentHabit ? (
+              <>
+                <h1 className="mb-3">
+                  <span>{days[days.length - 1]?.monthName}</span>{" "}
+                  {selected ? (
+                    <span>{selected?.day}, </span>
+                  ) : (
+                    <>{hovered && <span>{hovered?.day}, </span>}</>
+                  )}
+                  <span>{days[days.length - 1]?.year}</span>
+                </h1>
+                <div className="mb-3">
                   <Button
                     size="lg"
                     onClick={() => {
-                      if (currentMonth == 12) {
-                        setCurrentMonth(1);
-                        setCurrentYear(currentYear + 1);
+                      if (currentMonth == 1) {
+                        setCurrentMonth(12);
+                        setCurrentYear(currentYear - 1);
                       } else {
-                        setCurrentMonth(currentMonth + 1);
+                        setCurrentMonth(currentMonth - 1);
                       }
                     }}
                     className="border-0"
-                    icon="arrow-right"
+                    icon="arrow-left"
                   />
-                )}
-              </div>
-              <div className="month" onMouseLeave={() => setHovered(null)}>
-                {weekdays.map((x) => (
-                  <div className="weekday">{x}</div>
-                ))}
-                {days.map((x) => (
-                  <DayItem item={x} />
-                ))}
-              </div>
-              <div className="w-25 mt-4">
-                <hr />
-                <EditHabitForm />
-              </div>
-            </>
-          ) : (
-            <>
-              <h1 className="mb-3">
-                <span>{days[days.length - 1]?.monthName}</span>{" "}
-                {selected ? (
-                  <span>{selected?.day}, </span>
-                ) : (
-                  <>{hovered && <span>{hovered?.day}, </span>}</>
-                )}
-                <span>{days[days.length - 1]?.year}</span>
-              </h1>
-              <div className="mb-3">
-                <Button
-                  size="lg"
-                  onClick={() => {
-                    if (currentMonth == 1) {
-                      setCurrentMonth(12);
-                      setCurrentYear(currentYear - 1);
-                    } else {
-                      setCurrentMonth(currentMonth - 1);
-                    }
-                  }}
-                  className="border-0"
-                  icon="arrow-left"
-                />
-                {days.length > 26 && (
-                  <Button
-                    size="lg"
-                    onClick={() => {
-                      if (currentMonth == 12) {
-                        setCurrentMonth(1);
-                        setCurrentYear(currentYear + 1);
-                      } else {
-                        setCurrentMonth(currentMonth + 1);
-                      }
-                    }}
-                    className="border-0"
-                    icon="arrow-right"
-                  />
-                )}
-              </div>
-              <div className="month" onMouseLeave={() => setHovered(null)}>
-                {weekdays.map((x) => (
-                  <div className="weekday">{x}</div>
-                ))}
-                {days.map((x) => (
-                  <DayItem item={x} />
-                ))}
-              </div>
-              {selected?.entries?.length > 0 && (
-                <div className="mt-4 d-flex">
-                  <div className="label fw-bold mb-3">
-                    {selected?.entries?.length}
-                    {" entr" + (selected.entries.length > 1 ? "ies" : "y")}
-                  </div>
-                  <div className="ps-3">
-                    {selected?.entries.map((x) => (
-                      <div className="m-1">
-                        <i
-                          className="bi bi-square-fill me-2"
-                          style={{ color: x.habitColor }}></i>
-                        <span className="label small">{x.habitName}</span>
-                      </div>
-                    ))}
-                  </div>
+                  {days.length > 26 && (
+                    <Button
+                      size="lg"
+                      onClick={() => {
+                        if (currentMonth == 12) {
+                          setCurrentMonth(1);
+                          setCurrentYear(currentYear + 1);
+                        } else {
+                          setCurrentMonth(currentMonth + 1);
+                        }
+                      }}
+                      className="border-0"
+                      icon="arrow-right"
+                    />
+                  )}
                 </div>
-              )}
-            </>
-          )}
+                <div className="month" onMouseLeave={() => setHovered(null)}>
+                  {weekdays.map((x) => (
+                    <div className="weekday">{x}</div>
+                  ))}
+                  {days.map((x) => (
+                    <DayItem item={x} />
+                  ))}
+                </div>
+                <div className="w-25 mt-4">
+                  <hr />
+                  <EditHabitForm />
+                </div>
+              </>
+            ) : (
+              <>
+                <h1 className="mb-3">
+                  <span>{days[days.length - 1]?.monthName}</span>{" "}
+                  {selected ? (
+                    <span>{selected?.day}, </span>
+                  ) : (
+                    <>{hovered && <span>{hovered?.day}, </span>}</>
+                  )}
+                  <span>{days[days.length - 1]?.year}</span>
+                </h1>
+                <div className="mb-3">
+                  <Button
+                    size="lg"
+                    onClick={() => {
+                      if (currentMonth == 1) {
+                        setCurrentMonth(12);
+                        setCurrentYear(currentYear - 1);
+                      } else {
+                        setCurrentMonth(currentMonth - 1);
+                      }
+                    }}
+                    className="border-0"
+                    icon="arrow-left"
+                  />
+                  {days.length > 26 && (
+                    <Button
+                      size="lg"
+                      onClick={() => {
+                        if (currentMonth == 12) {
+                          setCurrentMonth(1);
+                          setCurrentYear(currentYear + 1);
+                        } else {
+                          setCurrentMonth(currentMonth + 1);
+                        }
+                      }}
+                      className="border-0"
+                      icon="arrow-right"
+                    />
+                  )}
+                </div>
+                <div className="month" onMouseLeave={() => setHovered(null)}>
+                  {weekdays.map((x) => (
+                    <div className="weekday">{x}</div>
+                  ))}
+                  {days.map((x) => (
+                    <DayItem item={x} />
+                  ))}
+                </div>
+                {selected?.entries?.length > 0 && (
+                  <div className="mt-4 d-flex">
+                    <div className="label fw-bold mb-3">
+                      {selected?.entries?.length}
+                      {" entr" + (selected.entries.length > 1 ? "ies" : "y")}
+                    </div>
+                    <div className="ps-3">
+                      {selected?.entries.map((x) => (
+                        <div className="m-1">
+                          <i
+                            className="bi bi-square-fill me-2"
+                            style={{ color: x.habitColor }}></i>
+                          <span className="label small">{x.habitName}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         </div>
-      </div>
+      ) : (
+        <div>Log In or Sign Up</div>
+      )}
     </AnotherContext.Provider>
   );
 }
@@ -623,6 +743,12 @@ function Display({ className }) {
 function Nav({ className }) {
   const multiCtx = React.useContext(MultiContext);
 
+  const logout = () => {
+    api("logout", {}, (data) => {
+      multiCtx.setCurrentUser(null);
+    });
+  };
+
   return (
     <div className={className + " between"}>
       <ButtonGroup size="sm">
@@ -644,19 +770,39 @@ function Nav({ className }) {
           loops
         </button>
       </ButtonGroup>
-      <ButtonGroup size="sm">
-        <Button
-          text={multiCtx.settings.theme}
-          icon={multiCtx.settings.theme === "light" ? "sun-fill" : "moon-fill"}
-          className={"text-capitalize border-0 "}
-          onClick={() =>
-            multiCtx.setSettings({
-              ...multiCtx.settings,
-              theme: multiCtx.settings.theme === "light" ? "dark" : "light",
-            })
-          }
-        />
-      </ButtonGroup>
+      <div className="btn-group btn-group-sm">
+        <Dropdown
+          className="btn-group"
+          classNameBtn="btn"
+          icon="person-fill"
+          text={multiCtx.currentUser?.username || "Log In / Sign Up"}>
+          {multiCtx.currentUser ? (
+            <a className="dropdown-item" onClick={() => logout()}>
+              Log Out
+            </a>
+          ) : (
+            <>
+              <LoginForm />
+              <SignupForm />
+            </>
+          )}
+        </Dropdown>
+        <ButtonGroup size="sm">
+          <Button
+            text={multiCtx.settings.theme}
+            icon={
+              multiCtx.settings.theme === "light" ? "sun-fill" : "moon-fill"
+            }
+            className={"text-capitalize border-0 "}
+            onClick={() =>
+              multiCtx.setSettings({
+                ...multiCtx.settings,
+                theme: multiCtx.settings.theme === "light" ? "dark" : "light",
+              })
+            }
+          />
+        </ButtonGroup>
+      </div>
     </div>
   );
 }
@@ -676,6 +822,9 @@ function App() {
   const [reverse, setReverse] = React.useState(false);
 
   const [limit, setLimit] = React.useState(30);
+  const [currentUser, setCurrentUser] = React.useState(
+    JSON.parse(localStorage.getItem("loops-user"))
+  );
 
   const sortOptions = [
     {
@@ -734,10 +883,10 @@ function App() {
   };
 
   React.useEffect(() => {
-    if (sortType) {
+    if (sortType && currentUser) {
       getHabits();
     }
-  }, [sortType, reverse]);
+  }, [sortType, reverse, currentUser]);
 
   React.useEffect(() => {
     setSortType(sortOptions[0]);
@@ -775,6 +924,9 @@ function App() {
     reverse: reverse,
     setReverse: setReverse,
     sortOptions: sortOptions,
+
+    currentUser: currentUser,
+    setCurrentUser: setCurrentUser,
   };
 
   React.useEffect(() => {

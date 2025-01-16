@@ -6,6 +6,7 @@ dotenv.load_dotenv()
 
 PORT = os.getenv("port") or "4999"
 SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI")
+SECRET_KEY = os.getenv("secret_key")
 
 
 def get():

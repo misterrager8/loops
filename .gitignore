@@ -2,3 +2,4 @@
 loops.egg-info/
 *.pyc
 .DS_Store
+tests/

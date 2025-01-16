@@ -1,10 +1,44 @@
-from calendar import Calendar
 import colorsys
 import datetime
+from calendar import Calendar
 
 import click
+from flask_login import UserMixin
 
 from . import db
+
+
+class User(db.Model, UserMixin):
+    __tablename__ = "users"
+
+    username = db.Column(db.Text)
+    password = db.Column(db.Text)
+    email = db.Column(db.Text)
+    habits = db.relationship("Habit", backref="users", lazy="dynamic")
+    entries = db.relationship("Entry", backref="users", lazy="dynamic")
+    id = db.Column(db.Integer, primary_key=True)
+
+    def __init__(self, **kwargs):
+        super(User, self).__init__(**kwargs)
+
+    def add(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def edit(self):
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def todict(self):
+        return {
+            "username": self.username,
+            "password": self.password,
+            "email": self.email,
+            "id": self.id,
+        }
 
 
 class Habit(db.Model):
@@ -17,6 +51,7 @@ class Habit(db.Model):
     reminder = db.Column(db.Boolean, default=False)
     color = db.Column(db.Text)
     entries = db.relationship("Entry", backref="habits", lazy="dynamic")
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     id = db.Column(db.Integer, primary_key=True)
 
     def __init__(self, **kwargs):
@@ -27,7 +62,7 @@ class Habit(db.Model):
         return Habit.query.get(id)
 
     @classmethod
-    def all(cls, sort="id", reverse=False):
+    def all(cls, id, sort="id", reverse=False):
         def hex_to_hsl(hex_color):
             """Converts a hex color code to HSL values."""
 
@@ -57,11 +92,13 @@ class Habit(db.Model):
             elif sort == "color":
                 return hex_to_hsl(x.color)[0]
 
-        return sorted([i for i in Habit.query.all()], key=func, reverse=reverse)
+        return sorted(
+            [i for i in Habit.query.all() if i.user_id == id], key=func, reverse=reverse
+        )
 
     @classmethod
-    def delete_all(cls):
-        for i in Habit.all():
+    def delete_all(cls, id):
+        for i in Habit.all(id):
             db.session.delete(i)
 
         db.session.commit()
@@ -135,7 +172,7 @@ class Day:
         pass
 
     @classmethod
-    def get_calendar(cls, limit=7):
+    def get_calendar(cls, user_id, limit=7):
         today = datetime.datetime.now()
         dates = []
 
@@ -143,7 +180,7 @@ class Day:
             currentDate = today - datetime.timedelta(i)
             found = []
 
-            for j in Entry.all():
+            for j in Entry.all(user_id):
                 if str(j.entry_date) == str(currentDate)[:10]:
                     new_dict = {
                         "id": j.id,
@@ -203,12 +240,12 @@ class Day:
         return dates
 
     @classmethod
-    def get_month(cls, month, year):
+    def get_month(cls, month, year, id):
         dates = []
         for i in Calendar(6).itermonthdates(year, month):
             found = []
             if i.month == month and i <= datetime.date.today():
-                for j in Entry.all():
+                for j in Entry.all(id):
                     if str(j.entry_date) == str(i):
                         found.append(
                             {
@@ -236,10 +273,10 @@ class Day:
         return dates
 
     @classmethod
-    def clear(cls, date):
+    def clear(cls, date, id):
         found = []
 
-        for j in Entry.all():
+        for j in Entry.all(id):
             if str(j.entry_date) == str(date)[:10]:
                 found.append(j)
 
@@ -253,6 +290,7 @@ class Entry(db.Model):
     __tablename__ = "entries"
 
     entry_date = db.Column(db.Date)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     habit_id = db.Column(db.Integer, db.ForeignKey("habits.id"))
     id = db.Column(db.Integer, primary_key=True)
 
@@ -264,8 +302,12 @@ class Entry(db.Model):
         return Entry.query.get(id)
 
     @classmethod
-    def all(cls):
-        return sorted([i for i in Entry.query.all()], key=lambda x: x.id, reverse=True)
+    def all(cls, id):
+        return sorted(
+            [i for i in Entry.query.all() if i.user_id == id],
+            key=lambda x: x.id,
+            reverse=True,
+        )
 
     @classmethod
     def delete_all(cls):
