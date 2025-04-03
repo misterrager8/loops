@@ -151,10 +151,12 @@ function Heading({ className, size = 1, icon, text }) {
 function SignupForm({ className = "" }) {
   const multiCtx = React.useContext(MultiContext);
 
+  const [email, setEmail] = React.useState("");
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [passwordConfirm, setPasswordConfirm] = React.useState("");
 
+  const onChangeEmail = (e) => setEmail(e.target.value);
   const onChangeUsername = (e) => setUsername(e.target.value);
   const onChangePassword = (e) => setPassword(e.target.value);
   const onChangePasswordConfirm = (e) => setPasswordConfirm(e.target.value);
@@ -164,6 +166,7 @@ function SignupForm({ className = "" }) {
     api(
       "signup",
       {
+        email: email,
         username: username,
         password: password,
         passwordConfirm: passwordConfirm,
@@ -176,6 +179,14 @@ function SignupForm({ className = "" }) {
 
   return (
     <form onSubmit={(e) => signup(e)} className={className}>
+      <Input
+        type_="email"
+        onChange={onChangeEmail}
+        value={email}
+        className="mb-1"
+        placeholder="E=mail Address"
+        size="sm"
+      />
       <Input
         onChange={onChangeUsername}
         value={username}
@@ -260,6 +271,7 @@ function HomePage({ className = "" }) {
   const [days, setDays] = React.useState([]);
   const [hovered, setHovered] = React.useState(null);
   const [selected, setSelected] = React.useState(null);
+  const [clearing, setClearing] = React.useState(false);
 
   const weekdays = ["S", "M", "T", "W", "Th", "F", "S"];
 
@@ -301,6 +313,14 @@ function HomePage({ className = "" }) {
       );
   };
 
+  const clearDay = () => {
+    api("clear_day", { date: selected?.fullStamp }, (data) => {
+      getMonth();
+      setClearing(false);
+      setSelected(null);
+    });
+  };
+
   React.useEffect(() => {
     if (multiCtx.currentHabit) {
       setSelected(null);
@@ -332,7 +352,7 @@ function HomePage({ className = "" }) {
     <AnotherContext.Provider value={contextValue}>
       {multiCtx.currentUser ? (
         <div className={className + " row"}>
-          <div className="col-xl-3">
+          <div className="col-3">
             <div
               className={
                 "p-1 m-1" + (!multiCtx.currentHabit ? " selected" : "")
@@ -353,11 +373,11 @@ function HomePage({ className = "" }) {
               <HabitItem key={x.id} item={x} />
             ))}
           </div>
-          <div className="col-xl-9 d-flex">
+          <div className="col-9 d-flex">
             <div className="m-auto">
               {multiCtx.currentHabit ? (
                 <>
-                  <h1 className="mb-3">
+                  <h1 className="text-center mb-3">
                     <span>{days[days.length - 1]?.monthName}</span>{" "}
                     {selected ? (
                       <span>{selected?.day}, </span>
@@ -366,7 +386,7 @@ function HomePage({ className = "" }) {
                     )}
                     <span>{days[days.length - 1]?.year}</span>
                   </h1>
-                  <div className="mb-3">
+                  <div className="between mb-3">
                     <Button
                       size="lg"
                       onClick={() => {
@@ -404,14 +424,14 @@ function HomePage({ className = "" }) {
                       <DayItem item={x} />
                     ))}
                   </div>
-                  <div className="w-75 mt-4">
+                  <div className="mt-4">
                     <hr />
                     <EditHabitForm />
                   </div>
                 </>
               ) : (
                 <>
-                  <h1 className="mb-3">
+                  <h1 className="text-center mb-3">
                     <span>{days[days.length - 1]?.monthName}</span>{" "}
                     {selected ? (
                       <span>{selected?.day}, </span>
@@ -420,7 +440,7 @@ function HomePage({ className = "" }) {
                     )}
                     <span>{days[days.length - 1]?.year}</span>
                   </h1>
-                  <div className="mb-3">
+                  <div className="between mb-3">
                     <Button
                       size="lg"
                       onClick={() => {
@@ -464,7 +484,7 @@ function HomePage({ className = "" }) {
                         {selected?.entries?.length}
                         {" entr" + (selected.entries.length > 1 ? "ies" : "y")}
                       </div>
-                      <div className="ps-3">
+                      <div className="px-3">
                         {selected?.entries.map((x) => (
                           <div className="m-1">
                             <i
@@ -473,6 +493,22 @@ function HomePage({ className = "" }) {
                             <span className="label small">{x.habitName}</span>
                           </div>
                         ))}
+                      </div>
+                      <div>
+                        <ButtonGroup>
+                          <Button
+                            onClick={() => setClearing(!clearing)}
+                            text="Clear Day"
+                            icon="x-lg"
+                          />
+                          {clearing && (
+                            <Button
+                              onClick={() => clearDay()}
+                              // text="Clear Day"
+                              icon="question-lg"
+                            />
+                          )}
+                        </ButtonGroup>
                       </div>
                     </div>
                   )}
@@ -483,9 +519,9 @@ function HomePage({ className = "" }) {
         </div>
       ) : (
         <div className="d-flex">
-          <div className="m-auto row w-50">
-            <LoginForm className="col-xl-6 p-3" />
-            <SignupForm className="col-xl-6 p-3" />
+          <div className="m-auto">
+            <LoginForm />
+            <SignupForm />
           </div>
         </div>
       )}
@@ -939,7 +975,7 @@ function App() {
 
   return (
     <MultiContext.Provider value={contextValue}>
-      <div className="p-5">
+      <div className="p-3">
         <div>
           <Nav />
           <Display />

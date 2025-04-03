@@ -5,6 +5,12 @@ html[data-theme="light"] {
 
   --btn-color: #305850;
   --btn-hover-text: #ebe1ab;
+
+  --unempty-1: #9ac8a1;
+  --unempty-2: #6e987a;
+  --unempty-3: #597a62;
+  --unempty-4: #3f5545;
+  --unempty-5: #243128;
 }
 
 html[data-theme="dark"] {
@@ -13,4 +19,10 @@ html[data-theme="dark"] {
 
   --btn-color: #ebe1ab;
   --btn-hover-text: #101e1b;
+
+  --unempty-5: #9ac8a1;
+  --unempty-4: #6e987a;
+  --unempty-3: #597a62;
+  --unempty-2: #3f5545;
+  --unempty-1: #243128;
 }

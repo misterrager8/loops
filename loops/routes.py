@@ -1,5 +1,6 @@
 import datetime
 import random
+
 # from datetime import datetime
 from pathlib import Path
 
@@ -26,12 +27,14 @@ def signup():
     user_ = None
 
     try:
+        email = request.json.get("email")
         username = request.json.get("username")
         password = request.json.get("password")
         password_confirm = request.json.get("passwordConfirm")
 
         if password == password_confirm:
             user__ = User(
+                email=email,
                 username=username,
                 password=generate_password_hash(password),
             )
@@ -354,13 +357,14 @@ def clear_habit():
 
 
 @current_app.post("/clear_day")
+@login_required
 def clear_day():
     success = True
     msg = ""
 
     try:
         date_ = datetime.datetime.strptime(request.json.get("date"), "%a %b %d %Y")
-        Day.clear(date_)
+        Day.clear(date_, current_user.id)
     except Exception as e:
         success = False
         msg = str(e)

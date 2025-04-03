@@ -266,7 +266,7 @@ class Day:
                         "day": i.day,
                         "weekdayInt": i.weekday(),
                         "weekdayName": i.strftime("%a"),
-                        "fullStamp": i.strftime("%B %-d"),
+                        "fullStamp": i.strftime("%a %b %d %Y"),
                         "entries": found,
                     }
                 )
