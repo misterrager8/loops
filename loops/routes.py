@@ -4,7 +4,7 @@ import random
 # from datetime import datetime
 from pathlib import Path
 
-from flask import current_app, render_template, request
+from flask import current_app, request, send_from_directory
 from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -15,9 +15,7 @@ from . import login_manager
 
 @current_app.route("/")
 def index():
-    return render_template(
-        "index.html", debug=current_app.config.get("ENV") == "development"
-    )
+    return send_from_directory(current_app.static_folder, "index.html")
 
 
 @current_app.post("/signup")
@@ -120,6 +118,8 @@ def about():
 def add_habit():
     success = True
     msg = ""
+    habit_ = None
+    habits_ = []
 
     try:
         habit_ = Habit(
@@ -131,6 +131,9 @@ def add_habit():
             color="#{:06x}".format(random.randint(0, 0xFFFFFF)),
         )
         habit_.add()
+
+        habit_ = habit_.to_dict()
+        habits_ = [i.to_dict() for i in Habit.all(current_user.id)]
     except Exception as e:
         success = False
         msg = str(e)
@@ -138,6 +141,8 @@ def add_habit():
     return {
         "success": success,
         "msg": msg,
+        "habits": habits_,
+        "habit": habit_,
     }
 
 
@@ -146,6 +151,7 @@ def add_habit():
 def add_entry():
     success = True
     msg = ""
+    days = []
 
     try:
         habit_ = Habit.get(int(request.json.get("id")))
@@ -158,6 +164,9 @@ def add_entry():
                 entry_date=date_, habit_id=habit_.id, user_id=current_user.id
             )
             entry_.add()
+
+        days = Day.get_calendar(current_user.id, limit=int(request.json.get("limit")))
+
     except Exception as e:
         success = False
         msg = str(e)
@@ -165,6 +174,7 @@ def add_entry():
     return {
         "success": success,
         "msg": msg,
+        "days": days,
     }
 
 
@@ -172,10 +182,15 @@ def add_entry():
 def delete_habit():
     success = True
     msg = ""
+    days = []
+    habits_ = []
 
     try:
         habit_ = Habit.get(int(request.json.get("id")))
         habit_.delete()
+
+        days = Day.get_calendar(current_user.id, limit=int(request.json.get("limit")))
+        habits_ = [i.to_dict() for i in Habit.all(current_user.id)]
     except Exception as e:
         success = False
         msg = str(e)
@@ -183,6 +198,8 @@ def delete_habit():
     return {
         "success": success,
         "msg": msg,
+        "days": days,
+        "habits": habits_,
     }
 
 
@@ -190,6 +207,9 @@ def delete_habit():
 def edit_habit():
     success = True
     msg = ""
+    habit_ = None
+    days = []
+    habits_ = []
 
     try:
         habit_ = Habit.get(int(request.json.get("id")))
@@ -197,6 +217,10 @@ def edit_habit():
         habit_.color = request.json.get("color")
 
         habit_.edit()
+
+        days = Day.get_calendar(current_user.id, limit=int(request.json.get("limit")))
+        habits_ = [i.to_dict() for i in Habit.all(current_user.id)]
+        habit_ = habit_.to_dict()
     except Exception as e:
         success = False
         msg = str(e)
@@ -204,6 +228,9 @@ def edit_habit():
     return {
         "success": success,
         "msg": msg,
+        "days": days,
+        "habits": habits_,
+        "habit": habit_,
     }
 
 
@@ -211,10 +238,14 @@ def edit_habit():
 def delete_entry():
     success = True
     msg = ""
+    days = []
 
     try:
         entry_ = Entry.get(int(request.json.get("id")))
         entry_.delete()
+
+        days = Day.get_calendar(current_user.id, limit=int(request.json.get("limit")))
+
     except Exception as e:
         success = False
         msg = str(e)
@@ -222,6 +253,7 @@ def delete_entry():
     return {
         "success": success,
         "msg": msg,
+        "days": days,
     }
 
 
@@ -233,14 +265,7 @@ def get_habits():
     habits_ = []
 
     try:
-        habits_ = [
-            i.to_dict()
-            for i in Habit.all(
-                current_user.id,
-                sort=request.json.get("sortType"),
-                reverse=request.json.get("reverse"),
-            )
-        ]
+        habits_ = [i.to_dict() for i in Habit.all(current_user.id)]
     except Exception as e:
         success = False
         msg = str(e)
@@ -260,7 +285,16 @@ def get_calendar():
     days = []
 
     try:
-        days = Day.get_calendar(current_user.id, limit=int(request.json.get("limit")))
+        if not request.json.get("habitId"):
+            days = Day.get_calendar(
+                current_user.id, limit=int(request.json.get("limit"))
+            )
+        else:
+            days = Day.get_calendar_with_habit(
+                current_user.id,
+                int(request.json.get("habitId")),
+                limit=int(request.json.get("limit")),
+            )
     except Exception as e:
         success = False
         msg = str(e)

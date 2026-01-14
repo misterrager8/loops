@@ -62,39 +62,8 @@ class Habit(db.Model):
         return Habit.query.get(id)
 
     @classmethod
-    def all(cls, id, sort="id", reverse=False):
-        def hex_to_hsl(hex_color):
-            """Converts a hex color code to HSL values."""
-
-            # Remove the '#' if it's present
-            hex_color = hex_color.lstrip("#")
-
-            # Convert hex to RGB
-            r = int(hex_color[0:2], 16) / 255.0
-            g = int(hex_color[2:4], 16) / 255.0
-            b = int(hex_color[4:6], 16) / 255.0
-
-            # Convert RGB to HSL
-            h, l, s = colorsys.rgb_to_hls(r, g, b)
-
-            # Normalize the values to be between 0 and 1
-            h = h if h <= 1 else h - 1
-            l = l if l <= 1 else l - 1
-            s = s if s <= 1 else s - 1
-
-            return h, s, l
-
-        def func(x):
-            if sort == "id":
-                return x.id
-            elif sort == "name":
-                return x.name
-            elif sort == "color":
-                return hex_to_hsl(x.color)[0]
-
-        return sorted(
-            [i for i in Habit.query.all() if i.user_id == id], key=func, reverse=reverse
-        )
+    def all(cls, id):
+        return [i for i in Habit.query.all() if i.user_id == id]
 
     @classmethod
     def delete_all(cls, id):
@@ -193,17 +162,60 @@ class Day:
 
             dates.append(
                 {
-                    "date_": currentDate.strftime("%a %-m/%-d"),
+                    "date_": currentDate.strftime("%a %-m/%-d %Y"),
                     "year": currentDate.year,
-                    "month": currentDate.month - 1,
+                    "index": i + 1,
+                    "monthInt": currentDate.month - 1,
                     "day": currentDate.day,
+                    "fullStamp": currentDate.strftime("%a %b %d %Y"),
+                    # %a %b %d %Y
                     "entries": sorted(
                         found, key=lambda d: d.get("habitId"), reverse=True
                     ),
                 }
             )
 
-        return dates
+        return sorted(dates, key=lambda x: x.get("index"))
+
+    @classmethod
+    def get_calendar_with_habit(cls, user_id, habit_id, limit=7):
+        today = datetime.datetime.now()
+        dates = []
+
+        for i in range(0, limit):
+            currentDate = today - datetime.timedelta(i)
+            found = []
+
+            for j in Entry.all(user_id):
+                if (
+                    str(j.entry_date) == str(currentDate)[:10]
+                    and j.habit_id == habit_id
+                ):
+                    new_dict = {
+                        "id": j.id,
+                        "entryDate": j.entry_date.strftime("%B %-d, %Y"),
+                        "habitColor": j.habits.color,
+                        "habitName": j.habits.name,
+                        "habitId": j.habits.id,
+                    }
+                    found.append(new_dict)
+
+            dates.append(
+                {
+                    "date_": currentDate.strftime("%a %-m/%-d %Y"),
+                    "year": currentDate.year,
+                    "index": i + 1,
+                    "monthInt": currentDate.month - 1,
+                    "day": currentDate.day,
+                    "fullStamp": currentDate.strftime("%a %b %d %Y"),
+                    # %a %b %d %Y
+                    "entries": sorted(
+                        found, key=lambda d: d.get("habitId"), reverse=True
+                    ),
+                }
+            )
+
+        return sorted(dates, key=lambda x: x.get("index"))
 
     @classmethod
     def get_month_with_habit(cls, month, year, habit_id):
