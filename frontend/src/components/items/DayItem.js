@@ -1,9 +1,11 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { MultiContext } from "../../Context";
 import api from "../../util";
+import { SelectedContext } from "../Display";
 
 export default function DayItem({ item }) {
   const multiCtx = useContext(MultiContext);
+  const { selectedDays, setSelectedDays } = useContext(SelectedContext);
 
   const addEntry = (id, date) => {
     multiCtx.setLoading(true);
@@ -17,8 +19,19 @@ export default function DayItem({ item }) {
       (data) => {
         multiCtx.getCalendar();
         multiCtx.setLoading(false);
-      }
+      },
     );
+  };
+
+  const toggleSelected = () => {
+    let selectedDays_ = [...selectedDays];
+    if (selectedDays_.includes(item.fullStamp)) {
+      selectedDays_ = selectedDays_.filter((x) => x !== item.fullStamp);
+    } else {
+      selectedDays_.push(item.fullStamp);
+    }
+
+    setSelectedDays(selectedDays_);
   };
 
   const isToday = (day) => {
@@ -35,13 +48,10 @@ export default function DayItem({ item }) {
       onClick={() => {
         if (!multiCtx.currentHabit) {
           multiCtx.setSelected(
-            multiCtx.selected?.date_ === item.date_ ? null : item
+            multiCtx.selected?.date_ === item.date_ ? null : item,
           );
         } else {
-          addEntry(
-            multiCtx.currentHabit?.id,
-            new Date(item.year, item.monthInt, item.day).toDateString()
-          );
+          toggleSelected();
         }
       }}
       style={{
@@ -55,11 +65,12 @@ export default function DayItem({ item }) {
         (isToday(item)
           ? "brightness-low-fill"
           : item.entries.length > 0
-          ? `record2`
-          : multiCtx.hovered?.date_ === item.date_ ||
-            multiCtx.selected?.date_ === item.date_
-          ? "x"
-          : "dot")
+            ? `record2`
+            : multiCtx.hovered?.date_ === item.date_ ||
+                multiCtx.selected?.date_ === item.date_ ||
+                selectedDays.includes(item.fullStamp)
+              ? "x"
+              : "dot")
       }></i>
   );
 }

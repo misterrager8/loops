@@ -1,4 +1,5 @@
 import datetime
+import json
 import random
 
 # from datetime import datetime
@@ -10,7 +11,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from loops.models import Day, Entry, Habit, User
 
-from . import login_manager
+from . import login_manager, db
 
 
 @current_app.route("/")
@@ -155,15 +156,23 @@ def add_entry():
 
     try:
         habit_ = Habit.get(int(request.json.get("id")))
-        date_ = datetime.datetime.strptime(request.json.get("date"), "%a %b %d %Y")
+        dates_ = json.loads(request.json.get("date"))
+        entries = []
 
-        if date_.strftime("%Y-%m-%d") not in [
-            str(i.entry_date) for i in habit_.entries
-        ]:
-            entry_ = Entry(
-                entry_date=date_, habit_id=habit_.id, user_id=current_user.id
-            )
-            entry_.add()
+        for i in dates_:
+            new_entry_date = datetime.datetime.strptime(i, "%a %b %d %Y")
+            if new_entry_date.strftime("%Y-%m-%d") not in [
+                str(i.entry_date) for i in habit_.entries
+            ]:
+                entry_ = Entry(
+                    entry_date=new_entry_date,
+                    habit_id=habit_.id,
+                    user_id=current_user.id,
+                )
+                entries.append(entry_)
+
+        db.session.add_all(entries)
+        db.session.commit()
 
         days = Day.get_calendar(current_user.id, limit=int(request.json.get("limit")))
 
