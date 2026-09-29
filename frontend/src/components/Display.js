@@ -9,6 +9,8 @@ import HabitItem from "./items/HabitItem";
 import api from "../util";
 import AddHabitForm from "./forms/AddHabitForm";
 import EditHabitForm from "./forms/EditHabitForm";
+import Icon from "./atoms/Icon";
+import SignupForm from "./forms/SignupForm";
 
 export const SelectedContext = createContext();
 
@@ -53,6 +55,10 @@ export default function Display() {
         multiCtx.setLoading(false);
       },
     );
+  };
+
+  const isEntryFound = (habitId) => {
+    return multiCtx.selected?.entries.map((x) => x.habitId).includes(habitId);
   };
 
   const contextValue = {
@@ -168,8 +174,20 @@ export default function Display() {
                   <div
                     className="mt-3"
                     style={{ height: "15vh", overflowY: "auto" }}>
-                    {multiCtx.selected?.entries.map((x) => (
-                      <HabitItem item={x} />
+                    {multiCtx.habits.map((x) => (
+                      // <HabitItem item={x} />
+                      <div className="d-flex">
+                        <Button
+                          className="my-auto"
+                          icon={(isEntryFound(x.id) ? "check-" : "") + "square"}
+                        />
+                        <div
+                          className="my-auto mx-1"
+                          style={{ color: x.color }}>
+                          <Icon name="record-fill" />
+                        </div>
+                        <div className="my-auto">{x.name}</div>
+                      </div>
                     ))}
                   </div>
                 )}
@@ -192,11 +210,15 @@ export default function Display() {
             ) : (
               <>
                 <LoginForm />
+                <SignupForm />
               </>
             )}
           </div>
         </div>
       </div>
+      {/* <div style={{ whiteSpace: "pre-wrap" }}>
+        {JSON.stringify(multiCtx.selected, null, 4)}
+      </div> */}
     </SelectedContext.Provider>
   );
 }
