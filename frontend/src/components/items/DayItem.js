@@ -1,27 +1,10 @@
 import { useContext, useState } from "react";
 import { MultiContext } from "../../Context";
-import api from "../../util";
 import { SelectedContext } from "../Display";
 
 export default function DayItem({ item }) {
   const multiCtx = useContext(MultiContext);
   const { selectedDays, setSelectedDays } = useContext(SelectedContext);
-
-  const addEntry = (id, date) => {
-    multiCtx.setLoading(true);
-    api(
-      "add_entry",
-      {
-        id: id,
-        date: date,
-        limit: multiCtx.limit,
-      },
-      (data) => {
-        multiCtx.getCalendar();
-        multiCtx.setLoading(false);
-      },
-    );
-  };
 
   const toggleSelected = () => {
     let selectedDays_ = [...selectedDays];

@@ -32,7 +32,7 @@ export default function Display() {
     multiCtx.setLoading(true);
     api("clear_day", { date: multiCtx.selected?.fullStamp }, (data) => {
       multiCtx.setSelected(null);
-      multiCtx.getCalendar();
+      // multiCtx.getCalendar();
       multiCtx.setLoading(false);
     });
   };
@@ -47,7 +47,9 @@ export default function Display() {
         limit: multiCtx.limit,
       },
       (data) => {
-        multiCtx.getCalendar();
+        // multiCtx.getCalendar();
+        multiCtx.setDays(data.days);
+        setSelectedDays([]);
         multiCtx.setLoading(false);
       },
     );
@@ -105,11 +107,6 @@ export default function Display() {
                       <>
                         <Button
                           className="px-1 py-0 me-1"
-                          icon="plus-lg"
-                          onClick={() => addEntries()}
-                        />
-                        <Button
-                          className="px-1 py-0 me-1"
                           icon="x"
                           onClick={() => setSelectedDays([])}
                         />
@@ -124,11 +121,6 @@ export default function Display() {
                         <span>&nbsp;</span>
                       )}
                     </div>
-                    <Button
-                      active={multiCtx.limit === 7}
-                      text="Week"
-                      onClick={() => multiCtx.setLimit(7)}
-                    />
                     <Button
                       active={multiCtx.limit === 30}
                       text="Month"
@@ -179,6 +171,21 @@ export default function Display() {
                     {multiCtx.selected?.entries.map((x) => (
                       <HabitItem item={x} />
                     ))}
+                  </div>
+                )}
+                {selectedDays.length > 0 && (
+                  <div>
+                    <div className="my-4">
+                      {selectedDays.map((x) => (
+                        <div>{x}</div>
+                      ))}
+                    </div>
+                    <Button
+                      text="Add Entries"
+                      className=""
+                      icon="plus-lg"
+                      onClick={() => addEntries()}
+                    />
                   </div>
                 )}
               </>

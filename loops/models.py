@@ -141,7 +141,7 @@ class Day:
         pass
 
     @classmethod
-    def get_calendar(cls, user_id, limit=7):
+    def get_calendar(cls, user_id, limit=30):
         today = datetime.datetime.now()
         dates = []
 
@@ -178,7 +178,7 @@ class Day:
         return sorted(dates, key=lambda x: x.get("index"))
 
     @classmethod
-    def get_calendar_with_habit(cls, user_id, habit_id, limit=7):
+    def get_calendar_with_habit(cls, user_id, habit_id, limit=30):
         today = datetime.datetime.now()
         dates = []
 

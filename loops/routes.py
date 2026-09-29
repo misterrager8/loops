@@ -174,7 +174,10 @@ def add_entry():
         db.session.add_all(entries)
         db.session.commit()
 
-        days = Day.get_calendar(current_user.id, limit=int(request.json.get("limit")))
+        days = Day.get_calendar_with_habit(
+            current_user.id,
+            int(request.json.get("id")),
+        )
 
     except Exception as e:
         success = False

@@ -11,7 +11,7 @@ export default function Context({ children }) {
   const [currentPage, setCurrentPage] = useState("");
   const [loading, setLoading] = useState(false);
   const [settings, setSettings] = useState(
-    JSON.parse(localStorage.getItem("loops")) || defaultSettings
+    JSON.parse(localStorage.getItem("loops")) || defaultSettings,
   );
   const [habits, setHabits] = useState([]);
   const [days, setDays] = useState([]);
@@ -23,9 +23,9 @@ export default function Context({ children }) {
   const [sortType, setSortType] = useState(null);
   const [reverse, setReverse] = useState(false);
 
-  const [limit, setLimit] = useState(7);
+  const [limit, setLimit] = useState(30);
   const [currentUser, setCurrentUser] = useState(
-    JSON.parse(localStorage.getItem("loops-user"))
+    JSON.parse(localStorage.getItem("loops-user")),
   );
 
   const sortOptions = [
@@ -68,14 +68,6 @@ export default function Context({ children }) {
     });
   };
 
-  const addEntry = (id, date) => {
-    setLoading(true);
-    api("add_entry", { id: id, date: date, limit: limit }, (data) => {
-      setDays(data.days);
-      setLoading(false);
-    });
-  };
-
   const getCalendar = () => {
     setLoading(true);
     api("get_calendar", { limit: limit, habitId: currentHabit?.id }, (data) => {
@@ -103,8 +95,6 @@ export default function Context({ children }) {
     addHabit: addHabit,
     currentHabit: currentHabit,
     setCurrentHabit: setCurrentHabit,
-
-    addEntry: addEntry,
 
     hovered: hovered,
     setHovered: setHovered,
