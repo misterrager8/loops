@@ -173,7 +173,8 @@ export default function Display() {
                 {multiCtx.selected && !multiCtx.currentHabit && (
                   <div
                     className="mt-3"
-                    style={{ height: "15vh", overflowY: "auto" }}>
+                    // style={{ height: "15vh", overflowY: "auto" }}
+                  >
                     {multiCtx.habits.map((x) => (
                       // <HabitItem item={x} />
                       <div className="d-flex">
