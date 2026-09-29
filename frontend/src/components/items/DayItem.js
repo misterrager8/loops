@@ -53,7 +53,8 @@ export default function DayItem({ item }) {
                 multiCtx.selected?.date_ === item.date_ ||
                 selectedDays.includes(item.fullStamp)
               ? "x"
-              : "dot")
+              : "dot") +
+        (multiCtx.selected?.date_ === item.date_ ? " opacity-25" : "")
       }></i>
   );
 }
