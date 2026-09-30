@@ -13,6 +13,8 @@ from loops.models import Day, Entry, Habit, User
 
 from . import login_manager, db
 
+from sqlalchemy import select
+
 
 @current_app.route("/")
 def index():
@@ -178,6 +180,73 @@ def add_entry():
             current_user.id,
             int(request.json.get("id")),
         )
+
+    except Exception as e:
+        success = False
+        msg = str(e)
+
+    return {
+        "success": success,
+        "msg": msg,
+        "days": days,
+    }
+
+
+@current_app.post("/add_entries_by_habit")
+@login_required
+def add_entries_by_habit():
+    success = True
+    msg = ""
+    days = []
+
+    try:
+        ids = json.loads(request.json.get("id"))
+        entries = []
+        for i in ids:
+            new_entry = Entry(
+                entry_date=datetime.datetime.strptime(
+                    request.json.get("date"), "%a %b %d %Y"
+                ),
+                habit_id=int(i),
+                user_id=current_user.id,
+            )
+            entries.append(new_entry)
+
+        db.session.add_all(entries)
+        db.session.commit()
+
+        days = Day.get_calendar(current_user.id)
+
+    except Exception as e:
+        success = False
+        msg = str(e)
+
+    return {
+        "success": success,
+        "msg": msg,
+        "days": days,
+    }
+
+
+@current_app.post("/delete_entries_by_habit")
+@login_required
+def delete_entries_by_habit():
+    success = True
+    msg = ""
+    days = []
+
+    try:
+        ids = json.loads(request.json.get("id"))
+        # entries = []
+
+        stmt = select(Entry).where(Entry.id.in_(ids))
+        entries = [i for i in db.session.scalars(stmt).all()]
+
+        for i in entries:
+            db.session.delete(i)
+        db.session.commit()
+
+        days = Day.get_calendar(current_user.id)
 
     except Exception as e:
         success = False
