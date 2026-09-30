@@ -149,7 +149,7 @@ export default function Display() {
                       <>
                         <Button
                           className="px-1 red"
-                          icon="x"
+                          icon="x-lg"
                           onClick={() => multiCtx.setCurrentHabit(null)}
                         />
                         <i
@@ -176,13 +176,18 @@ export default function Display() {
                         </div>
                       ))}
                     </Dropdown>
+                    {multiCtx.currentHabit?.streaks > 1 && (
+                      <div className="my-auto">
+                        Highest Streak: {multiCtx.currentHabit?.streaks}
+                      </div>
+                    )}
                   </div>
                   <div className="d-flex">
                     {selectedDays.length > 0 && (
                       <>
                         <Button
                           className="px-1 py-0 me-1"
-                          icon="x"
+                          icon="x-lg"
                           onClick={() => setSelectedDays([])}
                         />
                       </>
@@ -269,6 +274,7 @@ export default function Display() {
                       ))}
                     {addingThese.length > 0 && (
                       <Button
+                        className="green my-2"
                         onClick={() => addEntriesByHabit()}
                         icon="plus-lg"
                         text="Add Selected"
@@ -314,8 +320,9 @@ export default function Display() {
                       ))}
                     {deletingThese.length > 0 && (
                       <Button
+                        className="red my-2"
                         onClick={() => deleteEntriesByHabit()}
-                        icon="plus-lg"
+                        icon="x-lg"
                         text="Delete Selected"
                       />
                     )}
@@ -347,7 +354,7 @@ export default function Display() {
         </div>
       </div>
       <div style={{ whiteSpace: "pre-wrap" }}>
-        {JSON.stringify(deletingThese, null, 4)}
+        {JSON.stringify(multiCtx.habits, null, 4)}
       </div>
     </SelectedContext.Provider>
   );
