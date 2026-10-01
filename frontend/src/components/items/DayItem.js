@@ -48,7 +48,11 @@ export default function DayItem({ item }) {
         (isToday(item)
           ? "brightness-low-fill"
           : item.entries.length > 0
-            ? `record2`
+            ? multiCtx.currentHabit
+              ? "record2-fill"
+              : item.entries.length < 10
+                ? `${item.entries.length}-circle-fill`
+                : "circle-fill"
             : multiCtx.hovered?.date_ === item.date_ ||
                 multiCtx.selected?.date_ === item.date_ ||
                 selectedDays.includes(item.fullStamp)
