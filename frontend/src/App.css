@@ -110,11 +110,31 @@ a:hover {
 .day-item {
   margin: 2px;
   color: var(--btn-color);
-  font-size: 2rem;
+  font-size: 1.75rem;
 }
 
 .spinner-border {
   color: var(--btn-color);
+}
+
+.filled-1 {
+  color: var(--filled-1);
+}
+
+.filled-2 {
+  color: var(--filled-2);
+}
+
+.filled-3 {
+  color: var(--filled-3);
+}
+
+.filled-4 {
+  color: var(--filled-4);
+}
+
+.filled-5 {
+  color: var(--filled-5);
 }
 
 .input-color {

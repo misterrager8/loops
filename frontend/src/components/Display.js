@@ -176,13 +176,16 @@ export default function Display() {
                         </div>
                       ))}
                     </Dropdown>
-                    {multiCtx.currentHabit?.streaks > 1 && (
-                      <div className="my-auto">
-                        Highest Streak: {multiCtx.currentHabit?.streaks}
-                      </div>
-                    )}
                   </div>
-                  <div className="d-flex">
+
+                  {multiCtx.currentHabit?.streaks > 1 && (
+                    <div className="my-auto">
+                      Highest Streak: {multiCtx.currentHabit?.streaks}
+                    </div>
+                  )}
+                </div>
+                <div className="between mt-3">
+                  <div className="d-flex my-auto">
                     {selectedDays.length > 0 && (
                       <>
                         <Button
@@ -192,7 +195,7 @@ export default function Display() {
                         />
                       </>
                     )}
-                    <div className="my-auto small me-2 text-truncate">
+                    <div className="my-auto me-2 text-truncate">
                       {multiCtx.selected ? (
                         <span>{multiCtx.selected?.date_}</span>
                       ) : multiCtx.hovered ? (
@@ -201,6 +204,8 @@ export default function Display() {
                         <span>&nbsp;</span>
                       )}
                     </div>
+                  </div>
+                  <div>
                     <Button
                       active={multiCtx.limit === 30}
                       text="Month"
@@ -353,9 +358,9 @@ export default function Display() {
           </div>
         </div>
       </div>
-      <div style={{ whiteSpace: "pre-wrap" }}>
+      {/* <div style={{ whiteSpace: "pre-wrap" }}>
         {JSON.stringify(multiCtx.habits, null, 4)}
-      </div>
+      </div> */}
     </SelectedContext.Provider>
   );
 }

@@ -46,19 +46,20 @@ export default function DayItem({ item }) {
       className={
         "day-item bi bi-" +
         (isToday(item)
-          ? "brightness-low-fill"
+          ? "feather2"
           : item.entries.length > 0
             ? multiCtx.currentHabit
-              ? "record2-fill"
-              : item.entries.length < 10
-                ? `${item.entries.length}-circle-fill`
-                : "circle-fill"
+              ? "diamond-fill"
+              : "diamond-fill"
             : multiCtx.hovered?.date_ === item.date_ ||
                 multiCtx.selected?.date_ === item.date_ ||
                 selectedDays.includes(item.fullStamp)
               ? "x"
               : "dot") +
-        (multiCtx.selected?.date_ === item.date_ ? " opacity-25" : "")
+        (multiCtx.selected?.date_ === item.date_ ? " opacity-25" : "") +
+        (item.entries.length < 11
+          ? ` filled-${Math.round(item.entries.length / 2)}`
+          : " circle-fill")
       }></i>
   );
 }

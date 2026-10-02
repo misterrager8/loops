@@ -3,12 +3,13 @@ import Dropdown from "./atoms/Dropdown";
 import { MultiContext } from "../Context";
 import api from "../util";
 import Spinner from "./atoms/Spinner";
+import Button from "./atoms/Button";
 
 export default function Nav() {
   const multiCtx = useContext(MultiContext);
 
   const [theme, setTheme] = useState(
-    localStorage.getItem("loops-theme") || "light"
+    localStorage.getItem("loops-theme") || "light",
   );
 
   const logout = () => {
@@ -48,21 +49,10 @@ export default function Nav() {
             </div>
           </Dropdown>
         )}
-        <Dropdown
-          target="themes"
-          icon="paint-bucket"
-          // text={theme}
-          classNameMenu="text-center">
-          {themes.map((x) => (
-            <div
-              onClick={() => setTheme(x)}
-              className={
-                "text-capitalize dropdown-item" + (theme === x ? " active" : "")
-              }>
-              {x}
-            </div>
-          ))}
-        </Dropdown>
+        <Button
+          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          icon={theme === "dark" ? "sun-fill" : "moon-fill"}
+        />
       </div>
     </div>
   );
