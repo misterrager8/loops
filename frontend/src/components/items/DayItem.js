@@ -1,6 +1,7 @@
 import { useContext, useState } from "react";
 import { MultiContext } from "../../Context";
 import { SelectedContext } from "../Display";
+import { Icon } from "@iconify/react";
 
 export default function DayItem({ item }) {
   const multiCtx = useContext(MultiContext);
@@ -27,39 +28,46 @@ export default function DayItem({ item }) {
   };
 
   return (
-    <i
-      onClick={() => {
-        if (!multiCtx.currentHabit) {
-          multiCtx.setSelected(
-            multiCtx.selected?.date_ === item.date_ ? null : item,
-          );
-        } else {
-          toggleSelected();
-        }
-      }}
-      style={{
-        cursor: "pointer",
-        color: item.entries.length > 0 ? multiCtx.currentHabit?.color : null,
-      }}
-      onMouseLeave={() => multiCtx.setHovered(null)}
-      onMouseEnter={() => multiCtx.setHovered(item)}
+    <div
       className={
-        "day-item bi bi-" +
-        (isToday(item)
-          ? "feather2"
-          : item.entries.length > 0
-            ? multiCtx.currentHabit
-              ? "diamond-fill"
-              : "diamond-fill"
-            : multiCtx.hovered?.date_ === item.date_ ||
-                multiCtx.selected?.date_ === item.date_ ||
-                selectedDays.includes(item.fullStamp)
-              ? "x"
-              : "dot") +
-        (multiCtx.selected?.date_ === item.date_ ? " opacity-25" : "") +
+        "day-item" +
+        (multiCtx.selected?.date_ === item.date_ ? " text-success" : "") +
         (item.entries.length < 11
           ? ` filled-${Math.round(item.entries.length / 2)}`
-          : " circle-fill")
-      }></i>
+          : "")
+      }>
+      <Icon
+        onClick={() => {
+          if (!multiCtx.currentHabit) {
+            multiCtx.setSelected(
+              multiCtx.selected?.date_ === item.date_ ? null : item,
+            );
+          } else {
+            toggleSelected();
+          }
+        }}
+        style={{
+          cursor: "pointer",
+          color: item.entries.length > 0 ? multiCtx.currentHabit?.color : null,
+          borderBottom: item.entries.length > 0 ? ".5px solid" : null,
+        }}
+        onMouseLeave={() => multiCtx.setHovered(null)}
+        onMouseEnter={() => multiCtx.setHovered(item)}
+        icon={
+          "" +
+          (isToday(item)
+            ? "tabler:arrow-badge-down-filled"
+            : item.entries.length > 0
+              ? multiCtx.currentHabit
+                ? "bi:check-lg"
+                : `tabler:number-${item.entries.length}-small`
+              : multiCtx.hovered?.date_ === item.date_ ||
+                  multiCtx.selected?.date_ === item.date_ ||
+                  selectedDays.includes(item.fullStamp)
+                ? "bi:x"
+                : "bi:dot")
+        }
+      />
+    </div>
   );
 }

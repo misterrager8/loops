@@ -1,7 +1,8 @@
 @import "./colors.css";
 
 * {
-  font-family: "Roboto";
+  /* font-family: "Roboto"; */
+  font-family: "Blinker";
 }
 
 body {

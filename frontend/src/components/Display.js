@@ -38,13 +38,9 @@ export default function Display() {
     setDeletingThese([]);
   }, [multiCtx.selected]);
 
-  const clearDay = () => {
-    multiCtx.setLoading(true);
-    api("clear_day", { date: multiCtx.selected?.fullStamp }, (data) => {
-      multiCtx.setSelected(null);
-      // multiCtx.getCalendar();
-      multiCtx.setLoading(false);
-    });
+  const clearSelection = () => {
+    setAddingThese([]);
+    setDeletingThese([]);
   };
 
   const addEntriesByDate = () => {
@@ -223,7 +219,7 @@ export default function Display() {
                     className="d-flex mx-auto"
                     style={{
                       flexWrap: "wrap",
-                      maxHeight: "50vh",
+                      maxHeight: "30vh",
                       overflowY: "auto",
                     }}>
                     {multiCtx.days.map((x) => (
@@ -235,12 +231,37 @@ export default function Display() {
                 {multiCtx.selected &&
                 !multiCtx.currentHabit &&
                 multiCtx.selected?.entries.length > 0 ? (
-                  <div className="between mt-3">
+                  <div
+                    className={
+                      "between mt-3" +
+                      (addingThese.length > 0 || deletingThese.length > 0
+                        ? ""
+                        : " invisible")
+                    }>
                     <Button
-                      onClick={() => clearDay()}
-                      text="Clear Day"
+                      onClick={() => clearSelection()}
+                      text="Clear Selection"
                       icon="eraser-fill"
                     />
+                    <div>
+                      {addingThese.length > 0 && (
+                        <Button
+                          className="green"
+                          onClick={() => addEntriesByHabit()}
+                          icon="plus-lg"
+                          text={`Add ${addingThese.length}`}
+                        />
+                      )}
+
+                      {deletingThese.length > 0 && (
+                        <Button
+                          className="red"
+                          onClick={() => deleteEntriesByHabit()}
+                          icon="x-lg"
+                          text={`Delete ${deletingThese.length}`}
+                        />
+                      )}
+                    </div>
                   </div>
                 ) : multiCtx.currentHabit ? (
                   <EditHabitForm />
@@ -250,88 +271,77 @@ export default function Display() {
                   </div>
                 )}
                 {multiCtx.selected && !multiCtx.currentHabit && (
-                  <div
-                    className="mt-3"
-                    // style={{ height: "15vh", overflowY: "auto" }}
-                  >
-                    {multiCtx.habits
-                      .filter((x) => !isEntryFound(x.id))
-                      .map((x) => (
-                        // <HabitItem item={x} />
-                        <div
-                          className="d-flex mb-1"
-                          onClick={() => addToAdding(x.id)}>
-                          <Button
-                            active={addingThese.includes(x.id)}
-                            className="my-auto"
-                            icon={
-                              (addingThese.includes(x.id) ? "check-" : "") +
-                              "square"
-                            }
-                          />
+                  <>
+                    <div
+                      className="row p-2 m-1"
+                      style={{
+                        height: "36vh",
+                        overflowY: "auto",
+                        borderBottom: ".5px solid",
+                      }}>
+                      {multiCtx.habits
+                        .filter((x) => !isEntryFound(x.id))
+                        .map((x) => (
+                          // <HabitItem item={x} />
                           <div
-                            className="my-auto mx-2"
-                            style={{ color: x.color }}>
-                            <Icon name="record-fill" />
+                            className="d-flex col-6"
+                            onClick={() => addToAdding(x.id)}>
+                            <Button
+                              active={addingThese.includes(x.id)}
+                              className="my-auto"
+                              icon={
+                                (addingThese.includes(x.id) ? "check-" : "") +
+                                "square"
+                              }
+                            />
+                            <div
+                              className="my-auto mx-1"
+                              style={{ color: x.color }}>
+                              <Icon name="record-fill" />
+                            </div>
+                            <div className="my-auto">{x.name}</div>
                           </div>
-                          <div className="my-auto">{x.name}</div>
-                        </div>
-                      ))}
-                    {addingThese.length > 0 && (
-                      <Button
-                        className="green my-2"
-                        onClick={() => addEntriesByHabit()}
-                        icon="plus-lg"
-                        text="Add Selected"
-                      />
-                    )}
-                    {multiCtx.habits
-                      .filter((x) => isEntryFound(x.id))
-                      .map((x) => (
-                        // <HabitItem item={x} />
-                        <div
-                          className="d-flex mb-1"
-                          onClick={() =>
-                            addToDeleting(
-                              multiCtx.selected?.entries.find(
-                                (y) => y.habitId === x.id,
-                              )?.id,
-                            )
-                          }>
-                          <Button
-                            active={deletingThese.includes(
-                              multiCtx.selected?.entries.find(
-                                (y) => y.habitId === x.id,
-                              )?.id,
-                            )}
-                            className="my-auto"
-                            icon={
-                              (deletingThese.includes(
+                        ))}
+                      {multiCtx.habits
+                        .filter((x) => isEntryFound(x.id))
+                        .map((x) => (
+                          // <HabitItem item={x} />
+                          <div
+                            className="d-flex col-6"
+                            onClick={() =>
+                              addToDeleting(
                                 multiCtx.selected?.entries.find(
                                   (y) => y.habitId === x.id,
                                 )?.id,
                               )
-                                ? ""
-                                : "check-") + "square"
-                            }
-                          />
-                          <div
-                            className="my-auto mx-2"
-                            style={{ color: x.color }}>
-                            <Icon name="record-fill" />
+                            }>
+                            <Button
+                              active={deletingThese.includes(
+                                multiCtx.selected?.entries.find(
+                                  (y) => y.habitId === x.id,
+                                )?.id,
+                              )}
+                              className="my-auto"
+                              icon={
+                                (deletingThese.includes(
+                                  multiCtx.selected?.entries.find(
+                                    (y) => y.habitId === x.id,
+                                  )?.id,
+                                )
+                                  ? ""
+                                  : "check-") + "square"
+                              }
+                            />
+                            <div
+                              className="my-auto mx-1"
+                              style={{ color: x.color }}>
+                              <Icon name="record-fill" />
+                            </div>
+                            <div className="my-auto">{x.name}</div>
                           </div>
-                          <div className="my-auto">{x.name}</div>
-                        </div>
-                      ))}
-                    {deletingThese.length > 0 && (
-                      <Button
-                        className="red my-2"
-                        onClick={() => deleteEntriesByHabit()}
-                        icon="x-lg"
-                        text="Delete Selected"
-                      />
-                    )}
-                  </div>
+                        ))}
+                    </div>
+                  </>
                 )}
                 {selectedDays.length > 0 && (
                   <div>

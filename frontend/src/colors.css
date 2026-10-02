@@ -5,11 +5,11 @@ html[data-theme="light"] {
 
   --secondary-color: hsl(262, 15%, 71%);
 
-  --filled-1: hsl(190, 5%, 75%);
-  --filled-2: hsl(190, 5%, 65%);
-  --filled-3: hsl(190, 5%, 55%);
-  --filled-4: hsl(190, 5%, 45%);
-  --filled-5: hsl(190, 5%, 35%);
+  --filled-1: hsl(190, 5%, 60%);
+  --filled-2: hsl(190, 5%, 50%);
+  --filled-3: hsl(190, 5%, 40%);
+  --filled-4: hsl(190, 5%, 30%);
+  --filled-5: hsl(190, 5%, 20%);
 
   --btn-color: hsl(237 11 28);
   --btn-hover-text: #cccccc;
@@ -21,11 +21,11 @@ html[data-theme="dark"] {
 
   --secondary-color: hsl(203, 10%, 15%);
 
-  --filled-1: hsl(190, 5%, 15%);
-  --filled-2: hsl(190, 5%, 25%);
-  --filled-3: hsl(190, 5%, 35%);
-  --filled-4: hsl(190, 5%, 45%);
-  --filled-5: hsl(190, 5%, 55%);
+  --filled-1: hsl(190, 5%, 40%);
+  --filled-2: hsl(190, 5%, 50%);
+  --filled-3: hsl(190, 5%, 60%);
+  --filled-4: hsl(190, 5%, 70%);
+  --filled-5: hsl(190, 5%, 80%);
 
   --btn-color: hsl(274, 7%, 58%);
   --btn-hover-text: #1a1a1a;
