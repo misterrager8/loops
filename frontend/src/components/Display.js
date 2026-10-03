@@ -228,9 +228,7 @@ export default function Display() {
                   </div>
                 </div>
 
-                {multiCtx.selected &&
-                !multiCtx.currentHabit &&
-                multiCtx.selected?.entries.length > 0 ? (
+                {multiCtx.selected && !multiCtx.currentHabit ? (
                   <div
                     className={
                       "between mt-3" +
