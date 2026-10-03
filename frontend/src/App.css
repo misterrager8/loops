@@ -8,7 +8,6 @@
 body {
   background-color: var(--primary-bg);
   color: var(--primary-txt);
-  /* border: 1px solid red; */
 }
 
 .body {
@@ -21,7 +20,6 @@ body {
   margin: auto;
   width: 45%;
   height: 95%;
-  /* border: 1px solid red; */
 }
 
 .nav-custom {
@@ -50,7 +48,6 @@ a:hover {
   border-color: var(--btn-color);
   letter-spacing: 1.5px;
   border-width: 0.5px;
-  /* font-size: 0.875rem; */
 }
 
 .btn:hover,
@@ -64,7 +61,6 @@ a:hover {
   color: var(--primary-txt) !important;
   opacity: 50% !important;
   letter-spacing: 2px !important;
-  /* font-size: 0.875rem !important; */
 }
 
 .dropdown-menu {
@@ -75,7 +71,6 @@ a:hover {
 
 .dropdown-item {
   color: var(--primary-txt);
-  /* font-size: 0.875rem; */
   cursor: pointer;
 }
 
@@ -95,7 +90,6 @@ a:hover {
   background-color: var(--secondary-color);
   border: none;
   color: var(--primary-txt);
-  /* font-size: 0.875rem; */
 }
 
 ::-webkit-scrollbar-thumb {

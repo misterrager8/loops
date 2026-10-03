@@ -5,7 +5,6 @@ import LoginForm from "./forms/LoginForm";
 import Dropdown from "./atoms/Dropdown";
 import Button from "./atoms/Button";
 import DayItem from "./items/DayItem";
-import HabitItem from "./items/HabitItem";
 import api from "../util";
 import AddHabitForm from "./forms/AddHabitForm";
 import EditHabitForm from "./forms/EditHabitForm";
@@ -23,13 +22,11 @@ export default function Display() {
 
   useEffect(() => {
     multiCtx.currentUser && multiCtx.getCalendar();
-    // setSelectedDays([]);
     // eslint-disable-next-line
   }, [multiCtx.limit, multiCtx.currentUser, multiCtx.currentHabit]);
 
   useEffect(() => {
     multiCtx.setSelected(null);
-    // setSelectedDays([]);
     // eslint-disable-next-line
   }, [multiCtx.currentHabit]);
 
@@ -53,7 +50,6 @@ export default function Display() {
         limit: multiCtx.limit,
       },
       (data) => {
-        // multiCtx.getCalendar();
         multiCtx.setDays(data.days);
         setSelectedDays([]);
         multiCtx.setLoading(false);
@@ -75,7 +71,6 @@ export default function Display() {
         limit: multiCtx.limit,
       },
       (data) => {
-        // multiCtx.getCalendar();
         multiCtx.setSelected(null);
         multiCtx.setDays(data.days);
         multiCtx.setLoading(false);
@@ -92,7 +87,6 @@ export default function Display() {
         limit: multiCtx.limit,
       },
       (data) => {
-        // multiCtx.getCalendar();
         multiCtx.setSelected(null);
         multiCtx.setDays(data.days);
         multiCtx.setLoading(false);
@@ -271,23 +265,22 @@ export default function Display() {
                 {multiCtx.selected && !multiCtx.currentHabit && (
                   <>
                     <div
-                      className="row p-2 m-1"
+                      className="mt-2 p-2"
                       style={{
-                        height: "36vh",
+                        height: "38vh",
                         overflowY: "auto",
-                        borderBottom: ".5px solid",
+                        borderTop: ".5px dotted",
+                        borderBottom: ".5px dotted",
                       }}>
                       {multiCtx.habits
                         .filter((x) => !isEntryFound(x.id))
                         .map((x) => (
-                          // <HabitItem item={x} />
                           <div
-                            className="d-flex col-6"
+                            style={{ cursor: "pointer" }}
+                            className="d-flex mb-2"
                             onClick={() => addToAdding(x.id)}>
-                            <Button
-                              active={addingThese.includes(x.id)}
-                              className="my-auto"
-                              icon={
+                            <Icon
+                              name={
                                 (addingThese.includes(x.id) ? "check-" : "") +
                                 "square"
                               }
@@ -297,15 +290,17 @@ export default function Display() {
                               style={{ color: x.color }}>
                               <Icon name="record-fill" />
                             </div>
-                            <div className="my-auto">{x.name}</div>
+                            <div className="my-auto text-truncate">
+                              {x.name}
+                            </div>
                           </div>
                         ))}
                       {multiCtx.habits
                         .filter((x) => isEntryFound(x.id))
                         .map((x) => (
-                          // <HabitItem item={x} />
                           <div
-                            className="d-flex col-6"
+                            style={{ cursor: "pointer" }}
+                            className="d-flex mb-2"
                             onClick={() =>
                               addToDeleting(
                                 multiCtx.selected?.entries.find(
@@ -313,14 +308,8 @@ export default function Display() {
                                 )?.id,
                               )
                             }>
-                            <Button
-                              active={deletingThese.includes(
-                                multiCtx.selected?.entries.find(
-                                  (y) => y.habitId === x.id,
-                                )?.id,
-                              )}
-                              className="my-auto"
-                              icon={
+                            <Icon
+                              name={
                                 (deletingThese.includes(
                                   multiCtx.selected?.entries.find(
                                     (y) => y.habitId === x.id,
@@ -335,7 +324,9 @@ export default function Display() {
                               style={{ color: x.color }}>
                               <Icon name="record-fill" />
                             </div>
-                            <div className="my-auto">{x.name}</div>
+                            <div className="my-auto text-truncate">
+                              {x.name}
+                            </div>
                           </div>
                         ))}
                     </div>
@@ -366,9 +357,6 @@ export default function Display() {
           </div>
         </div>
       </div>
-      {/* <div style={{ whiteSpace: "pre-wrap" }}>
-        {JSON.stringify(multiCtx.habits, null, 4)}
-      </div> */}
     </SelectedContext.Provider>
   );
 }

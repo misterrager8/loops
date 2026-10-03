@@ -33,8 +33,6 @@ export default function Nav() {
     }
   }, [multiCtx.currentUser]);
 
-  const themes = ["light", "dark"];
-
   return (
     <div className="nav-custom">
       <div>{multiCtx.loading && <Spinner />}</div>

@@ -1,6 +1,5 @@
 import { useContext, useEffect, useState } from "react";
 import { MultiContext } from "../../Context";
-import { AnotherContext } from "../pages/HomePage";
 import api from "../../util";
 import Button from "../atoms/Button";
 import Input from "../atoms/Input";
@@ -8,7 +7,6 @@ import Input from "../atoms/Input";
 export default function EditHabitForm({ className = "" }) {
   const multiCtx = useContext(MultiContext);
 
-  const [saved, setSaved] = useState(false);
   const [name, setName] = useState("");
   const [color, setColor] = useState("");
   const [deleting, setDeleting] = useState(false);
@@ -32,7 +30,7 @@ export default function EditHabitForm({ className = "" }) {
         multiCtx.setHabits(data.habits);
         multiCtx.setDays(data.days);
         multiCtx.setLoading(false);
-      }
+      },
     );
   };
 
@@ -48,7 +46,7 @@ export default function EditHabitForm({ className = "" }) {
         multiCtx.setDays(data.days);
         multiCtx.setCurrentHabit(null);
         setDeleting(false);
-      }
+      },
     );
   };
 

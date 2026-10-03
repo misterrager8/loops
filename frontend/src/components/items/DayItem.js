@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { MultiContext } from "../../Context";
 import { SelectedContext } from "../Display";
 import { Icon } from "@iconify/react";
