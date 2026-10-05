@@ -33,7 +33,7 @@ export default function DayItem({ item }) {
         "day-item" +
         (multiCtx.selected?.date_ === item.date_ ? " text-success" : "") +
         (item.entries.length < 11
-          ? ` filled-${Math.round(item.entries.length / 2)}`
+          ? ` filled-${Math.round((item.entries.length / multiCtx.habits.length) * 5)}`
           : "")
       }>
       <Icon
