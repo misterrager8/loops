@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { MultiContext } from "../../Context";
 import { SelectedContext } from "../Display";
 import { Icon } from "@iconify/react";
+import moment from "moment";
 
 export default function DayItem({ item }) {
   const multiCtx = useContext(MultiContext);
@@ -33,7 +34,14 @@ export default function DayItem({ item }) {
         "day-item" +
         (multiCtx.selected?.date_ === item.date_ ? " text-success" : "") +
         (item.entries.length < 11
-          ? ` filled-${Math.round((item.entries.length / multiCtx.habits.length) * 5)}`
+          ? ` filled-${Math.round(
+              (item.entries.length /
+                multiCtx.habits.filter((x) => {
+                  // console.log(moment(item.fullStamp).format());
+                  return moment(x.start_date) <= moment(item.fullStamp);
+                }).length) *
+                5,
+            )}`
           : "")
       }>
       <Icon
