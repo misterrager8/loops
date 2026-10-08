@@ -41,7 +41,7 @@ def signup():
             )
 
             user__.add()
-            login_user(user__)
+            login_user(user__, remember=True)
 
             user_ = user__.todict()
 
@@ -70,7 +70,7 @@ def login():
         user__: User = User.query.filter_by(username=username).first()
         if user__ and check_password_hash(user__.password, password):
             user_ = user__.todict()
-            login_user(user__)
+            login_user(user__, remember=True)
         else:
             success = False
             msg = "User not found, Try again"
