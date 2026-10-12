@@ -33,16 +33,11 @@ export default function DayItem({ item }) {
       className={
         "day-item" +
         (multiCtx.selected?.date_ === item.date_ ? " text-success" : "") +
-        (item.entries.length < 11
-          ? ` filled-${Math.round(
-              (item.entries.length /
-                multiCtx.habits.filter((x) => {
-                  // console.log(moment(item.fullStamp).format());
-                  return moment(x.start_date) <= moment(item.fullStamp);
-                }).length) *
-                5,
-            )}`
-          : "")
+        (item.entries.length < 6 && item.entries.length > 0
+          ? ` filled-${item.entries.length}`
+          : item.entries.length > 5
+            ? " filled-5"
+            : "")
       }>
       <Icon
         onClick={() => {

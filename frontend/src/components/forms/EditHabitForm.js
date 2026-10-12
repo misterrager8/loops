@@ -3,6 +3,7 @@ import { MultiContext } from "../../Context";
 import api from "../../util";
 import Button from "../atoms/Button";
 import Input from "../atoms/Input";
+import moment from "moment";
 
 export default function EditHabitForm({ className = "" }) {
   const multiCtx = useContext(MultiContext);
@@ -58,27 +59,32 @@ export default function EditHabitForm({ className = "" }) {
   }, [multiCtx.currentHabit]);
 
   return (
-    <form onSubmit={(e) => editHabit(e)} className="d-flex mt-4">
-      <input
-        type="color"
-        className="input-color"
-        onChange={onChangeColor}
-        value={color}
-      />
-      <Input onChange={onChangeName} value={name} />
-      {deleting && (
+    <>
+      <form onSubmit={(e) => editHabit(e)} className="d-flex mt-4">
+        <input
+          type="color"
+          className="input-color"
+          onChange={onChangeColor}
+          value={color}
+        />
+        <Input onChange={onChangeName} value={name} />
+        {deleting && (
+          <Button
+            className="red"
+            icon="question-lg"
+            onClick={() => deleteHabit()}
+          />
+        )}
         <Button
           className="red"
-          icon="question-lg"
-          onClick={() => deleteHabit()}
+          icon="trash2"
+          onClick={() => setDeleting(!deleting)}
         />
-      )}
-      <Button
-        className="red"
-        icon="trash2"
-        onClick={() => setDeleting(!deleting)}
-      />
-      <button type="submit" className="d-none"></button>
-    </form>
+        <button type="submit" className="d-none"></button>
+      </form>
+      <div className="mt-3">
+        Added: {moment(multiCtx.currentHabit?.start_date).format("L")}
+      </div>
+    </>
   );
 }
