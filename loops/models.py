@@ -141,15 +141,16 @@ class Day:
         pass
 
     @classmethod
-    def get_calendar(cls, user_id, limit=7):
+    def get_calendar(cls, user_id, limit=30):
         today = datetime.datetime.now()
         dates = []
+        all_entries = Entry.all(user_id)
 
         for i in range(0, limit):
             currentDate = today - datetime.timedelta(i)
             found = []
 
-            for j in Entry.all(user_id):
+            for j in all_entries:
                 if str(j.entry_date) == str(currentDate)[:10]:
                     new_dict = {
                         "id": j.id,
@@ -178,15 +179,16 @@ class Day:
         return sorted(dates, key=lambda x: x.get("index"))
 
     @classmethod
-    def get_calendar_with_habit(cls, user_id, habit_id, limit=7):
+    def get_calendar_with_habit(cls, user_id, habit_id, limit=30):
         today = datetime.datetime.now()
         dates = []
+        all_entries = Entry.all(user_id)
 
         for i in range(0, limit):
             currentDate = today - datetime.timedelta(i)
             found = []
 
-            for j in Entry.all(user_id):
+            for j in all_entries:
                 if (
                     str(j.entry_date) == str(currentDate)[:10]
                     and j.habit_id == habit_id
@@ -254,10 +256,12 @@ class Day:
     @classmethod
     def get_month(cls, month, year, id):
         dates = []
+        all_entries = Entry.all(id)
+
         for i in Calendar(6).itermonthdates(year, month):
             found = []
             if i.month == month and i <= datetime.date.today():
-                for j in Entry.all(id):
+                for j in all_entries:
                     if str(j.entry_date) == str(i):
                         found.append(
                             {

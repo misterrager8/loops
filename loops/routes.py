@@ -1,4 +1,5 @@
 import datetime
+import json
 import random
 
 # from datetime import datetime
@@ -10,7 +11,9 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from loops.models import Day, Entry, Habit, User
 
-from . import login_manager
+from . import login_manager, db
+
+from sqlalchemy import select
 
 
 @current_app.route("/")
@@ -38,7 +41,7 @@ def signup():
             )
 
             user__.add()
-            login_user(user__)
+            login_user(user__, remember=True)
 
             user_ = user__.todict()
 
@@ -67,7 +70,7 @@ def login():
         user__: User = User.query.filter_by(username=username).first()
         if user__ and check_password_hash(user__.password, password):
             user_ = user__.todict()
-            login_user(user__)
+            login_user(user__, remember=True)
         else:
             success = False
             msg = "User not found, Try again"
@@ -155,17 +158,95 @@ def add_entry():
 
     try:
         habit_ = Habit.get(int(request.json.get("id")))
-        date_ = datetime.datetime.strptime(request.json.get("date"), "%a %b %d %Y")
+        dates_ = json.loads(request.json.get("date"))
+        entries = []
 
-        if date_.strftime("%Y-%m-%d") not in [
-            str(i.entry_date) for i in habit_.entries
-        ]:
-            entry_ = Entry(
-                entry_date=date_, habit_id=habit_.id, user_id=current_user.id
+        for i in dates_:
+            new_entry_date = datetime.datetime.strptime(i, "%a %b %d %Y")
+            if new_entry_date.strftime("%Y-%m-%d") not in [
+                str(i.entry_date) for i in habit_.entries
+            ]:
+                entry_ = Entry(
+                    entry_date=new_entry_date,
+                    habit_id=habit_.id,
+                    user_id=current_user.id,
+                )
+                entries.append(entry_)
+
+        db.session.add_all(entries)
+        db.session.commit()
+
+        days = Day.get_calendar_with_habit(
+            current_user.id,
+            int(request.json.get("id")),
+        )
+
+    except Exception as e:
+        success = False
+        msg = str(e)
+
+    return {
+        "success": success,
+        "msg": msg,
+        "days": days,
+    }
+
+
+@current_app.post("/add_entries_by_habit")
+@login_required
+def add_entries_by_habit():
+    success = True
+    msg = ""
+    days = []
+
+    try:
+        ids = json.loads(request.json.get("id"))
+        entries = []
+        for i in ids:
+            new_entry = Entry(
+                entry_date=datetime.datetime.strptime(
+                    request.json.get("date"), "%a %b %d %Y"
+                ),
+                habit_id=int(i),
+                user_id=current_user.id,
             )
-            entry_.add()
+            entries.append(new_entry)
 
-        days = Day.get_calendar(current_user.id, limit=int(request.json.get("limit")))
+        db.session.add_all(entries)
+        db.session.commit()
+
+        days = Day.get_calendar(current_user.id)
+
+    except Exception as e:
+        success = False
+        msg = str(e)
+
+    return {
+        "success": success,
+        "msg": msg,
+        "days": days,
+    }
+
+
+@current_app.post("/delete_entries_by_habit")
+@login_required
+def delete_entries_by_habit():
+    success = True
+    msg = ""
+    days = []
+
+    try:
+        ids = json.loads(request.json.get("id"))
+        # entries = []
+
+        stmt = select(Entry).where(Entry.id.in_(ids))
+        entries = [i for i in db.session.scalars(stmt).all()]
+
+        for i in entries:
+            db.session.delete(i)
+        db.session.commit()
+
+        days = Day.get_calendar(current_user.id)
 
     except Exception as e:
         success = False

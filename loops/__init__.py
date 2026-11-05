@@ -12,6 +12,7 @@ login_manager = LoginManager()
 
 def create_app(config):
     app.config.from_object(config)
+    # app.config["SQLALCHEMY_ECHO"] = True
 
     db.init_app(app)
     login_manager.init_app(app)

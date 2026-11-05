@@ -13,7 +13,7 @@ export default function AddHabitForm({ className = "" }) {
     e.preventDefault();
     multiCtx.setLoading(true);
     api("add_habit", { name: name }, (data) => {
-      multiCtx.getHabits();
+      // multiCtx.getHabits();
       setName("");
       multiCtx.setLoading(false);
     });

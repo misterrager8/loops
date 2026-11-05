@@ -1,24 +1,22 @@
 import { useContext } from "react";
 import { MultiContext } from "../../Context";
-import api from "../../util";
+import { SelectedContext } from "../Display";
+import { Icon } from "@iconify/react";
+import moment from "moment";
 
 export default function DayItem({ item }) {
   const multiCtx = useContext(MultiContext);
+  const { selectedDays, setSelectedDays } = useContext(SelectedContext);
 
-  const addEntry = (id, date) => {
-    multiCtx.setLoading(true);
-    api(
-      "add_entry",
-      {
-        id: id,
-        date: date,
-        limit: multiCtx.limit,
-      },
-      (data) => {
-        multiCtx.getCalendar();
-        multiCtx.setLoading(false);
-      }
-    );
+  const toggleSelected = () => {
+    let selectedDays_ = [...selectedDays];
+    if (selectedDays_.includes(item.fullStamp)) {
+      selectedDays_ = selectedDays_.filter((x) => x !== item.fullStamp);
+    } else {
+      selectedDays_.push(item.fullStamp);
+    }
+
+    setSelectedDays(selectedDays_);
   };
 
   const isToday = (day) => {
@@ -31,35 +29,48 @@ export default function DayItem({ item }) {
   };
 
   return (
-    <i
-      onClick={() => {
-        if (!multiCtx.currentHabit) {
-          multiCtx.setSelected(
-            multiCtx.selected?.date_ === item.date_ ? null : item
-          );
-        } else {
-          addEntry(
-            multiCtx.currentHabit?.id,
-            new Date(item.year, item.monthInt, item.day).toDateString()
-          );
-        }
-      }}
-      style={{
-        cursor: "pointer",
-        color: item.entries.length > 0 ? multiCtx.currentHabit?.color : null,
-      }}
-      onMouseLeave={() => multiCtx.setHovered(null)}
-      onMouseEnter={() => multiCtx.setHovered(item)}
+    <div
       className={
-        "day-item bi bi-" +
-        (isToday(item)
-          ? "brightness-low-fill"
-          : item.entries.length > 0
-          ? `record2`
-          : multiCtx.hovered?.date_ === item.date_ ||
-            multiCtx.selected?.date_ === item.date_
-          ? "x"
-          : "dot")
-      }></i>
+        "day-item" +
+        (multiCtx.selected?.date_ === item.date_ ? " text-secondary" : "") +
+        (item.entries.length < 6 && item.entries.length > 0
+          ? ` filled-${item.entries.length}`
+          : item.entries.length > 5
+            ? " filled-5"
+            : "")
+      }>
+      <Icon
+        onClick={() => {
+          if (!multiCtx.currentHabit) {
+            multiCtx.setSelected(
+              multiCtx.selected?.date_ === item.date_ ? null : item,
+            );
+          } else {
+            toggleSelected();
+          }
+        }}
+        style={{
+          cursor: "pointer",
+          color: item.entries.length > 0 ? multiCtx.currentHabit?.color : null,
+          borderBottom: item.entries.length > 0 ? ".5px solid" : null,
+        }}
+        onMouseLeave={() => multiCtx.setHovered(null)}
+        onMouseEnter={() => multiCtx.setHovered(item)}
+        icon={
+          "" +
+          (isToday(item)
+            ? "tabler:arrow-badge-down-filled"
+            : item.entries.length > 0
+              ? multiCtx.currentHabit
+                ? "bi:check-lg"
+                : `tabler:number-${item.entries.length}-small`
+              : multiCtx.hovered?.date_ === item.date_ ||
+                  multiCtx.selected?.date_ === item.date_ ||
+                  selectedDays.includes(item.fullStamp)
+                ? "bi:x"
+                : "bi:dot")
+        }
+      />
+    </div>
   );
 }

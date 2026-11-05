@@ -1,9 +1,18 @@
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+
 :root,
 html[data-theme="light"] {
   --primary-bg: hsl(261 24 80);
   --primary-txt: #1a1a1a;
 
   --secondary-color: hsl(262, 15%, 71%);
+
+  --filled-1: #{$blue-300};
+  --filled-2: #{$blue-400};
+  --filled-3: #{$blue-500};
+  --filled-4: #{$blue-600};
+  --filled-5: #{$blue-800};
 
   --btn-color: hsl(237 11 28);
   --btn-hover-text: #cccccc;
@@ -14,6 +23,12 @@ html[data-theme="dark"] {
   --primary-txt: #cccccc;
 
   --secondary-color: hsl(203, 10%, 15%);
+
+  --filled-1: #{$blue-800};
+  --filled-2: #{$blue-700};
+  --filled-3: #{$blue-600};
+  --filled-4: #{$blue-500};
+  --filled-5: #{$blue-300};
 
   --btn-color: hsl(274, 7%, 58%);
   --btn-hover-text: #1a1a1a;
