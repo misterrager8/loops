@@ -3,10 +3,10 @@
 
 :root,
 html[data-theme="light"] {
-  --primary-bg: hsl(261 24 80);
-  --primary-txt: #1a1a1a;
+  --primary-bg: #{$gray-400};
+  --primary-txt: #{$gray-900};
 
-  --secondary-color: hsl(262, 15%, 71%);
+  --secondary-color: #{$gray-500};
 
   --filled-1: #{$blue-300};
   --filled-2: #{$blue-400};
@@ -14,15 +14,15 @@ html[data-theme="light"] {
   --filled-4: #{$blue-600};
   --filled-5: #{$blue-800};
 
-  --btn-color: hsl(237 11 28);
+  --btn-color: #{$gray-700};
   --btn-hover-text: #cccccc;
 }
 
 html[data-theme="dark"] {
-  --primary-bg: hsl(204 10 10);
+  --primary-bg: #{$gray-900};
   --primary-txt: #cccccc;
 
-  --secondary-color: hsl(203, 10%, 15%);
+  --secondary-color: #{$gray-800};
 
   --filled-1: #{$blue-800};
   --filled-2: #{$blue-700};
@@ -30,6 +30,6 @@ html[data-theme="dark"] {
   --filled-4: #{$blue-500};
   --filled-5: #{$blue-300};
 
-  --btn-color: hsl(274, 7%, 58%);
+  --btn-color: #{$gray-500};
   --btn-hover-text: #1a1a1a;
 }

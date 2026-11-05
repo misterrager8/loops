@@ -235,21 +235,34 @@ export default function Display() {
                           multiCtx.selected?.date_ === item.date_
                             ? ".5px solid"
                             : null,
-                        backgroundColor: multiCtx.selected?.color,
+                        backgroundColor: !multiCtx.currentHabit
+                          ? item.entries.length === 0
+                            ? "var(--secondary-color)"
+                            : `var(--filled-${item.entries.length > 5 ? 5 : item.entries.length})`
+                          : item.entries.length > 0
+                            ? multiCtx.currentHabit?.color
+                            : "var(--secondary-color)",
                       }}
                       onMouseLeave={() => multiCtx.setHovered(null)}
                       onMouseEnter={() => multiCtx.setHovered(item)}
-                      className={
-                        "mini-day " +
-                        (item.entries.length < 6 && item.entries.length > 0
-                          ? ` filled-square-${item.entries.length}`
-                          : item.entries.length > 5
-                            ? " filled-square-5"
-                            : "") +
-                        (multiCtx.hovered?.date_ === item.date_ ? "" : "")
-                      }></div>
+                      className="mini-day"></div>
                   ))}
                 </div>
+                {!multiCtx.currentHabit && (
+                  <div className="d-flex my-3 align-items-center">
+                    <span className="small me-2">Less</span>
+                    {Array(5)
+                      .fill(1)
+                      .map((item, idx) => (
+                        <div
+                          style={{
+                            backgroundColor: `var(--filled-${idx + 1})`,
+                          }}
+                          className="mini-day"></div>
+                      ))}
+                    <span className="small ms-2">More</span>
+                  </div>
+                )}
                 {multiCtx.selected && !multiCtx.currentHabit ? (
                   <div
                     className={
@@ -385,6 +398,7 @@ export default function Display() {
           </div>
         </div>
       </div>
+      {JSON.stringify(multiCtx.currentHabit?.streaks)}
     </SelectedContext.Provider>
   );
 }
