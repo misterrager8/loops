@@ -179,6 +179,7 @@ def add_entry():
         days = Day.get_calendar_with_habit(
             current_user.id,
             int(request.json.get("id")),
+            limit=int(request.json.get("limit")),
         )
 
     except Exception as e:
@@ -215,7 +216,7 @@ def add_entries_by_habit():
         db.session.add_all(entries)
         db.session.commit()
 
-        days = Day.get_calendar(current_user.id)
+        days = Day.get_calendar(current_user.id, limit=int(request.json.get("limit")))
 
     except Exception as e:
         success = False
@@ -246,7 +247,7 @@ def delete_entries_by_habit():
             db.session.delete(i)
         db.session.commit()
 
-        days = Day.get_calendar(current_user.id)
+        days = Day.get_calendar(current_user.id, limit=int(request.json.get("limit")))
 
     except Exception as e:
         success = False

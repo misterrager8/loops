@@ -120,6 +120,17 @@ export default function Display() {
     return multiCtx.selected?.entries.map((x) => x.habitId).includes(habitId);
   };
 
+  const toggleSelected = (item) => {
+    let selectedDays_ = [...selectedDays];
+    if (selectedDays_.includes(item.fullStamp)) {
+      selectedDays_ = selectedDays_.filter((x) => x !== item.fullStamp);
+    } else {
+      selectedDays_.push(item.fullStamp);
+    }
+
+    setSelectedDays(selectedDays_);
+  };
+
   const contextValue = {
     selectedDays: selectedDays,
     setSelectedDays: setSelectedDays,
@@ -208,31 +219,53 @@ export default function Display() {
                     />
                   </div>
                 </div>
-                <div className="d-flex mt-4">
-                  <div
-                    className="d-flex mx-auto"
-                    style={{
-                      flexWrap: "wrap",
-                      maxHeight: "30vh",
-                      overflowY: "auto",
-                    }}>
-                    {multiCtx.days.map((x) => (
-                      <DayItem item={x} />
-                    ))}
+
+                {!multiCtx.currentHabit && (
+                  <div className="d-flex my-3 align-items-center">
+                    <span className="small me-2">Less</span>
+                    {Array(5)
+                      .fill(1)
+                      .map((item, idx) => (
+                        <div
+                          style={{
+                            borderRadius: "5px",
+                            width: "24px",
+                            height: "24px",
+                            backgroundColor: `var(--filled-${idx + 1})`,
+                          }}
+                          className="mini-day"></div>
+                      ))}
+                    <span className="small ms-2">More</span>
                   </div>
-                </div>
-                <div className="dots mt-5">
+                )}
+                <div
+                  className="dots mt-5"
+                  style={{
+                    flexWrap: "wrap",
+                    maxHeight: "30vh",
+                    overflowY: "auto",
+                  }}>
                   {multiCtx.days.map((item) => (
                     <div
-                      onClick={() =>
-                        multiCtx.setSelected(
-                          multiCtx.selected?.date_ === item.date_ ? null : item,
-                        )
-                      }
+                      onClick={() => {
+                        if (!multiCtx.currentHabit) {
+                          multiCtx.setSelected(
+                            multiCtx.selected?.date_ === item.date_
+                              ? null
+                              : item,
+                          );
+                        } else {
+                          toggleSelected(item);
+                        }
+                      }}
                       style={{
+                        borderRadius: "5px",
+                        width: "24px",
+                        height: "24px",
                         border:
                           multiCtx.hovered?.date_ === item.date_ ||
-                          multiCtx.selected?.date_ === item.date_
+                          multiCtx.selected?.date_ === item.date_ ||
+                          selectedDays.includes(item.fullStamp)
                             ? ".5px solid"
                             : null,
                         backgroundColor: !multiCtx.currentHabit
@@ -248,21 +281,6 @@ export default function Display() {
                       className="mini-day"></div>
                   ))}
                 </div>
-                {!multiCtx.currentHabit && (
-                  <div className="d-flex my-3 align-items-center">
-                    <span className="small me-2">Less</span>
-                    {Array(5)
-                      .fill(1)
-                      .map((item, idx) => (
-                        <div
-                          style={{
-                            backgroundColor: `var(--filled-${idx + 1})`,
-                          }}
-                          className="mini-day"></div>
-                      ))}
-                    <span className="small ms-2">More</span>
-                  </div>
-                )}
                 {multiCtx.selected && !multiCtx.currentHabit ? (
                   <div
                     className={
@@ -398,7 +416,6 @@ export default function Display() {
           </div>
         </div>
       </div>
-      {JSON.stringify(multiCtx.currentHabit?.streaks)}
     </SelectedContext.Provider>
   );
 }
