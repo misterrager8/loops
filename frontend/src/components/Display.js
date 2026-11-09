@@ -271,7 +271,9 @@ export default function Display() {
                         backgroundColor: !multiCtx.currentHabit
                           ? item.entries.length === 0
                             ? "var(--secondary-color)"
-                            : `var(--filled-${item.entries.length > 5 ? 5 : item.entries.length})`
+                            : item.percentage > 0
+                              ? `var(--filled-${item.percentage})`
+                              : "var(--secondary-color)"
                           : item.entries.length > 0
                             ? multiCtx.currentHabit?.color
                             : "var(--secondary-color)",
