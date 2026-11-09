@@ -234,7 +234,7 @@ export default function Display() {
                             backgroundColor: `var(--filled-${idx + 1})`,
                           }}
                           className="mini-day">
-                          <span className="m-auto">{idx + 1}</span>
+                          {/* <span className="m-auto">{idx + 1}</span> */}
                         </div>
                       ))}
                     <span className="small ms-2">More</span>
@@ -283,9 +283,9 @@ export default function Display() {
                       onMouseLeave={() => multiCtx.setHovered(null)}
                       onMouseEnter={() => multiCtx.setHovered(item)}
                       className="mini-day">
-                      {item.percentage > 0 && (
+                      {/* {item.percentage > 0 && (
                         <span className="m-auto">{item.percentage}</span>
-                      )}
+                      )} */}
                     </div>
                   ))}
                 </div>
