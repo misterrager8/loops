@@ -1,9 +1,6 @@
-import colorsys
 import datetime
 from calendar import Calendar
-import math
 
-import click
 from flask_login import UserMixin
 
 from . import db
@@ -164,14 +161,14 @@ class Day:
                     found.append(new_dict)
 
             num_habits_at_point = [
-                i for i in all_habits if i.start_date < currentDate.date()
+                i for i in all_habits if i.start_date <= currentDate.date()
             ]
             percentage = (
-                math.ceil(((len(found) / len(num_habits_at_point)) * 100) / 20)
+                round(((len(found) / len(num_habits_at_point)) * 100) / 20)
                 if len(num_habits_at_point) > 0
                 else 0
             )
-            click.secho(percentage, fg="blue")
+
             dates.append(
                 {
                     "date_": currentDate.strftime("%a %-m/%-d %Y"),

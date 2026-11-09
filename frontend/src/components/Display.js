@@ -4,12 +4,12 @@ import { MultiContext } from "../Context";
 import LoginForm from "./forms/LoginForm";
 import Dropdown from "./atoms/Dropdown";
 import Button from "./atoms/Button";
-import DayItem from "./items/DayItem";
 import api from "../util";
 import AddHabitForm from "./forms/AddHabitForm";
 import EditHabitForm from "./forms/EditHabitForm";
 import Icon from "./atoms/Icon";
 import SignupForm from "./forms/SignupForm";
+import moment from "moment";
 
 export const SelectedContext = createContext();
 
@@ -233,7 +233,9 @@ export default function Display() {
                             height: "24px",
                             backgroundColor: `var(--filled-${idx + 1})`,
                           }}
-                          className="mini-day"></div>
+                          className="mini-day">
+                          <span className="m-auto">{idx + 1}</span>
+                        </div>
                       ))}
                     <span className="small ms-2">More</span>
                   </div>
@@ -266,7 +268,7 @@ export default function Display() {
                           multiCtx.hovered?.date_ === item.date_ ||
                           multiCtx.selected?.date_ === item.date_ ||
                           selectedDays.includes(item.fullStamp)
-                            ? ".5px solid"
+                            ? "2px solid var(--primary-bg)"
                             : null,
                         backgroundColor: !multiCtx.currentHabit
                           ? item.entries.length === 0
@@ -280,7 +282,11 @@ export default function Display() {
                       }}
                       onMouseLeave={() => multiCtx.setHovered(null)}
                       onMouseEnter={() => multiCtx.setHovered(item)}
-                      className="mini-day"></div>
+                      className="mini-day">
+                      {item.percentage > 0 && (
+                        <span className="m-auto">{item.percentage}</span>
+                      )}
+                    </div>
                   ))}
                 </div>
                 {multiCtx.selected && !multiCtx.currentHabit ? (
@@ -328,7 +334,7 @@ export default function Display() {
                     <div
                       className="mt-2 p-2"
                       style={{
-                        height: "38vh",
+                        height: "27vh",
                         overflowY: "auto",
                         borderTop: ".5px dotted",
                         borderBottom: ".5px dotted",
@@ -338,7 +344,13 @@ export default function Display() {
                         .map((x) => (
                           <div
                             style={{ cursor: "pointer" }}
-                            className="d-flex mb-2"
+                            className={
+                              "d-flex mb-2" +
+                              (moment(x.start_date) <=
+                              moment(multiCtx?.selected?.date_)
+                                ? ""
+                                : " opacity-25")
+                            }
                             onClick={() => addToAdding(x.id)}>
                             <Icon
                               name={
@@ -361,7 +373,13 @@ export default function Display() {
                         .map((x) => (
                           <div
                             style={{ cursor: "pointer" }}
-                            className="d-flex mb-2"
+                            className={
+                              "d-flex mb-2" +
+                              (moment(x.start_date) <=
+                              moment(multiCtx?.selected?.date_)
+                                ? ""
+                                : " opacity-25")
+                            }
                             onClick={() =>
                               addToDeleting(
                                 multiCtx.selected?.entries.find(

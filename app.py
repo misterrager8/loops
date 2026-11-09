@@ -1,4 +1,4 @@
-from loops import create_app, config
+from loops import config, create_app
 
 app = create_app(config)
 

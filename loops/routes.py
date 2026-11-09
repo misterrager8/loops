@@ -1,19 +1,17 @@
 import datetime
 import json
 import random
-
 # from datetime import datetime
 from pathlib import Path
 
 from flask import current_app, request, send_from_directory
 from flask_login import current_user, login_required, login_user, logout_user
+from sqlalchemy import select
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from loops.models import Day, Entry, Habit, User
 
-from . import login_manager, db
-
-from sqlalchemy import select
+from . import db, login_manager
 
 
 @current_app.route("/")

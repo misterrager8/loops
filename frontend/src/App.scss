@@ -141,6 +141,8 @@ a:hover {
 .mini-day {
   cursor: pointer;
   margin: 1px;
+  display: flex;
+  color: #{$gray-400};
 }
 
 .input-color {
