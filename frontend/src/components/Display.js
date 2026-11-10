@@ -16,9 +16,22 @@ export const SelectedContext = createContext();
 export default function Display() {
   const multiCtx = useContext(MultiContext);
   const [selectedDays, setSelectedDays] = useState([]);
+  const [baseColor, setBaseColor] = useState(
+    localStorage.getItem("loops-color") || "blue",
+  );
 
   const [addingThese, setAddingThese] = useState([]);
   const [deletingThese, setDeletingThese] = useState([]);
+
+  const colors = [
+    "red",
+    "orange",
+    "yellow",
+    "green",
+    "blue",
+    "indigo",
+    "purple",
+  ];
 
   useEffect(() => {
     multiCtx.currentUser && multiCtx.getCalendar();
@@ -34,6 +47,10 @@ export default function Display() {
     setAddingThese([]);
     setDeletingThese([]);
   }, [multiCtx.selected]);
+
+  useEffect(() => {
+    localStorage.setItem("loops-color", baseColor);
+  }, [baseColor]);
 
   const clearSelection = () => {
     setAddingThese([]);
@@ -226,20 +243,54 @@ export default function Display() {
                 </div>
 
                 {!multiCtx.currentHabit && (
-                  <div className="d-flex my-3 align-items-center">
-                    <span className="small me-2">Less</span>
-                    {Array(5)
-                      .fill(1)
-                      .map((item, idx) => (
-                        <div
-                          style={{
-                            backgroundColor: `var(--filled-${idx + 1})`,
-                          }}
-                          className="mini-day">
-                          {/* <span className="m-auto">{idx + 1}</span> */}
+                  <div className="d-flex justify-content-between my-3 align-items-center">
+                    <div className="dropdown me-3">
+                      <a
+                        data-bs-target="#colors"
+                        data-bs-toggle="dropdown"
+                        className="dropdown-toggle">
+                        <Icon
+                          style={{ color: `var(--${baseColor}-3)` }}
+                          name="circle-fill"
+                        />
+                      </a>
+                      <div id="colors" className="dropdown-menu p-2">
+                        <div className="d-flex gap-2">
+                          {colors.map((x) => (
+                            <a onClick={() => setBaseColor(x)}>
+                              <Icon
+                                style={{
+                                  color: `var(--${x}-3)`,
+                                  fontSize: "2rem",
+                                  cursor: "pointer",
+                                }}
+                                name={
+                                  "circle" + (baseColor === x ? "-fill" : "")
+                                }
+                              />
+                            </a>
+                          ))}
                         </div>
-                      ))}
-                    <span className="small ms-2">More</span>
+                      </div>
+                    </div>
+
+                    <div className="d-flex align-items-center">
+                      <span className="small me-2">Less</span>
+                      {Array(5)
+                        .fill(1)
+                        .map((item, idx) => (
+                          <div
+                            style={{
+                              backgroundColor: `var(--${baseColor}-${idx + 1})`,
+                              height: "24px",
+                              width: "24px",
+                              margin: "1px",
+                              borderRadius: "5px",
+                            }}
+                            className="mini-day"></div>
+                        ))}
+                      <span className="small ms-2">More</span>
+                    </div>
                   </div>
                 )}
                 <div
@@ -267,13 +318,13 @@ export default function Display() {
                           multiCtx.hovered?.date_ === item.date_ ||
                           multiCtx.selected?.date_ === item.date_ ||
                           selectedDays.includes(item.fullStamp)
-                            ? "2px solid var(--primary-bg)"
+                            ? "5px solid var(--primary-bg)"
                             : null,
                         backgroundColor: !multiCtx.currentHabit
                           ? item.entries.length === 0
                             ? "var(--secondary-color)"
                             : item.percentage > 0
-                              ? `var(--filled-${item.percentage > 5 ? 5 : item.percentage})`
+                              ? `var(--${baseColor}-${item.percentage > 5 ? 5 : item.percentage})`
                               : "var(--secondary-color)"
                           : item.entries.length > 0
                             ? multiCtx.currentHabit?.color
@@ -281,11 +332,7 @@ export default function Display() {
                       }}
                       onMouseLeave={() => multiCtx.setHovered(null)}
                       onMouseEnter={() => multiCtx.setHovered(item)}
-                      className="mini-day">
-                      {/* {item.percentage > 0 && (
-                        <span className="m-auto">{item.percentage}</span>
-                      )} */}
-                    </div>
+                      className="mini-day"></div>
                   ))}
                 </div>
                 {multiCtx.selected && !multiCtx.currentHabit ? (

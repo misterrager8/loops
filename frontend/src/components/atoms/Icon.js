@@ -1,3 +1,3 @@
-export default function Icon({ className, name }) {
-  return <i className={className + " bi bi-" + name}></i>;
+export default function Icon({ className, name, style }) {
+  return <i style={style} className={className + " bi bi-" + name}></i>;
 }
