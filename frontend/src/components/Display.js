@@ -345,17 +345,16 @@ export default function Display() {
                         borderBottom: ".5px dotted",
                       }}>
                       {multiCtx.habits
-                        .filter((x) => !isEntryFound(x.id))
+                        .filter(
+                          (x) =>
+                            !isEntryFound(x.id) &&
+                            moment(x.start_date) <=
+                              moment(multiCtx?.selected?.date_),
+                        )
                         .map((x) => (
                           <div
                             style={{ cursor: "pointer" }}
-                            className={
-                              "d-flex mb-2" +
-                              (moment(x.start_date) <=
-                              moment(multiCtx?.selected?.date_)
-                                ? ""
-                                : " opacity-25")
-                            }
+                            className="d-flex mb-2"
                             onClick={() => addToAdding(x.id)}>
                             <Icon
                               name={
@@ -374,17 +373,16 @@ export default function Display() {
                           </div>
                         ))}
                       {multiCtx.habits
-                        .filter((x) => isEntryFound(x.id))
+                        .filter(
+                          (x) =>
+                            isEntryFound(x.id) &&
+                            moment(x.start_date) <=
+                              moment(multiCtx?.selected?.date_),
+                        )
                         .map((x) => (
                           <div
                             style={{ cursor: "pointer" }}
-                            className={
-                              "d-flex mb-2" +
-                              (moment(x.start_date) <=
-                              moment(multiCtx?.selected?.date_)
-                                ? ""
-                                : " opacity-25")
-                            }
+                            className="d-flex mb-2"
                             onClick={() =>
                               addToDeleting(
                                 multiCtx.selected?.entries.find(
