@@ -206,16 +206,21 @@ export default function Display() {
                       )}
                     </div>
                   </div>
-                  <div>
+                  <div className="d-flex gap-1">
                     <Button
                       active={multiCtx.limit === 30}
-                      text="Month"
+                      text="30"
                       onClick={() => multiCtx.setLimit(30)}
                     />
                     <Button
-                      active={multiCtx.limit === 365}
-                      text="Year"
-                      onClick={() => multiCtx.setLimit(365)}
+                      active={multiCtx.limit === 60}
+                      text="60"
+                      onClick={() => multiCtx.setLimit(60)}
+                    />
+                    <Button
+                      active={multiCtx.limit === 90}
+                      text="90"
+                      onClick={() => multiCtx.setLimit(90)}
                     />
                   </div>
                 </div>
@@ -274,7 +279,7 @@ export default function Display() {
                           ? item.entries.length === 0
                             ? "var(--secondary-color)"
                             : item.percentage > 0
-                              ? `var(--filled-${item.percentage})`
+                              ? `var(--filled-${item.percentage > 5 ? 5 : item.percentage})`
                               : "var(--secondary-color)"
                           : item.entries.length > 0
                             ? multiCtx.currentHabit?.color

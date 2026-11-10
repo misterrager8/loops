@@ -13,7 +13,7 @@ export default function Context({ children }) {
   const [hovered, setHovered] = useState(null);
   const [selected, setSelected] = useState(null);
 
-  const [limit, setLimit] = useState(30);
+  const [limit, setLimit] = useState(90);
   const [currentUser, setCurrentUser] = useState(
     JSON.parse(localStorage.getItem("loops-user")),
   );
