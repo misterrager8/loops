@@ -143,6 +143,9 @@ a:hover {
   margin: 1px;
   display: flex;
   color: #{$gray-400};
+  width: 24px;
+  height: 24px;
+  border-radius: 5px;
 }
 
 .input-color {
@@ -160,5 +163,12 @@ a:hover {
   .inner {
     width: 95%;
     height: 100%;
+  }
+
+  .mini-day {
+    height: 50px;
+    width: 50px;
+    margin: 4px;
+    border-radius: 10px;
   }
 }

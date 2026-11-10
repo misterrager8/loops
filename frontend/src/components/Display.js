@@ -233,9 +233,6 @@ export default function Display() {
                       .map((item, idx) => (
                         <div
                           style={{
-                            borderRadius: "5px",
-                            width: "24px",
-                            height: "24px",
                             backgroundColor: `var(--filled-${idx + 1})`,
                           }}
                           className="mini-day">
@@ -266,9 +263,6 @@ export default function Display() {
                         }
                       }}
                       style={{
-                        borderRadius: "5px",
-                        width: "24px",
-                        height: "24px",
                         border:
                           multiCtx.hovered?.date_ === item.date_ ||
                           multiCtx.selected?.date_ === item.date_ ||
