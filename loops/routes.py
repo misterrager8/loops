@@ -296,6 +296,7 @@ def edit_habit():
         habit_ = Habit.get(int(request.json.get("id")))
         habit_.name = request.json.get("name")
         habit_.color = request.json.get("color")
+        habit_.start_date = request.json.get("startDate")
 
         habit_.edit()
 

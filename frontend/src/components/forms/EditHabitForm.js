@@ -3,17 +3,19 @@ import { MultiContext } from "../../Context";
 import api from "../../util";
 import Button from "../atoms/Button";
 import Input from "../atoms/Input";
-import moment from "moment";
+import moment from "moment-timezone";
 
 export default function EditHabitForm({ className = "" }) {
   const multiCtx = useContext(MultiContext);
 
   const [name, setName] = useState("");
   const [color, setColor] = useState("");
+  const [startDate, setStartDate] = useState("");
   const [deleting, setDeleting] = useState(false);
 
   const onChangeName = (e) => setName(e.target.value);
   const onChangeColor = (e) => setColor(e.target.value);
+  const onChangeStartDate = (e) => setStartDate(e.target.value);
 
   const editHabit = (e) => {
     e.preventDefault();
@@ -25,6 +27,7 @@ export default function EditHabitForm({ className = "" }) {
         name: name,
         color: color,
         limit: multiCtx.limit,
+        startDate: startDate,
       },
       (data) => {
         multiCtx.setCurrentHabit(data.habit);
@@ -55,19 +58,32 @@ export default function EditHabitForm({ className = "" }) {
     if (multiCtx.currentHabit) {
       setName(multiCtx.currentHabit?.name);
       setColor(multiCtx.currentHabit?.color);
+      setStartDate(
+        moment
+          .tz(multiCtx.currentHabit?.start_date, "America/New_York")
+          .format("YYYY-MM-DD"),
+      );
     }
   }, [multiCtx.currentHabit]);
 
   return (
     <>
-      <form onSubmit={(e) => editHabit(e)} className="d-flex mt-4">
-        <input
-          type="color"
-          className="input-color"
-          onChange={onChangeColor}
-          value={color}
-        />
+      <form onSubmit={(e) => editHabit(e)} className="d-flex mt-4 gap-1">
+        <div className="d-flex">
+          <input
+            type="color"
+            className="input-color"
+            onChange={onChangeColor}
+            value={color}
+          />
+        </div>
         <Input onChange={onChangeName} value={name} />
+        <input
+          className="form-control"
+          type="date"
+          value={startDate}
+          onChange={onChangeStartDate}
+        />
         {deleting && (
           <Button
             className="red"
