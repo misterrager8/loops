@@ -8,6 +8,7 @@ import api from "../util";
 import AddHabitForm from "./forms/AddHabitForm";
 import EditHabitForm from "./forms/EditHabitForm";
 import Icon from "./atoms/Icon";
+import { Icon as Icon_ } from "@iconify/react";
 import SignupForm from "./forms/SignupForm";
 import moment from "moment";
 
@@ -196,23 +197,30 @@ export default function Display() {
                     </Dropdown>
                   </div>
 
-                  <div className="my-auto">
-                    Highest Streak:{" "}
-                    {
-                      multiCtx.currentHabit?.streaks.sort(
-                        (x, y) => y.length_ - x.length_,
-                      )?.[0]?.length_
-                    }
-                    {` (${moment(
-                      multiCtx.currentHabit?.streaks.sort(
-                        (x, y) => y.length_ - x.length_,
-                      )?.[0]?.start,
-                    ).format("l")} - ${moment(
-                      multiCtx.currentHabit?.streaks.sort(
-                        (x, y) => y.length_ - x.length_,
-                      )?.[0]?.end,
-                    ).format("l")})`}
-                  </div>
+                  {multiCtx.currentHabit?.streaks.length > 0 && (
+                    <div className="my-auto">
+                      <Icon_
+                        inline
+                        icon="boxicons:crown-filled"
+                        className="me-2"
+                      />
+                      Highest Streak:{" "}
+                      {
+                        multiCtx.currentHabit?.streaks.sort(
+                          (x, y) => y.length_ - x.length_,
+                        )?.[0]?.length_
+                      }
+                      {` (${moment(
+                        multiCtx.currentHabit?.streaks.sort(
+                          (x, y) => y.length_ - x.length_,
+                        )?.[0]?.start,
+                      ).format("M/D/YY")} - ${moment(
+                        multiCtx.currentHabit?.streaks.sort(
+                          (x, y) => y.length_ - x.length_,
+                        )?.[0]?.end,
+                      ).format("M/D/YY")})`}
+                    </div>
+                  )}
                 </div>
                 <div className="between mt-3">
                   <div className="d-flex my-auto">
