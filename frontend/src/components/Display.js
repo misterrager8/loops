@@ -196,11 +196,23 @@ export default function Display() {
                     </Dropdown>
                   </div>
 
-                  {multiCtx.currentHabit?.streaks > 1 && (
-                    <div className="my-auto">
-                      Highest Streak: {multiCtx.currentHabit?.streaks}
-                    </div>
-                  )}
+                  <div className="my-auto">
+                    Highest Streak:{" "}
+                    {
+                      multiCtx.currentHabit?.streaks.sort(
+                        (x, y) => y.length_ - x.length_,
+                      )?.[0]?.length_
+                    }
+                    {` (${moment(
+                      multiCtx.currentHabit?.streaks.sort(
+                        (x, y) => y.length_ - x.length_,
+                      )?.[0]?.start,
+                    ).format("l")} - ${moment(
+                      multiCtx.currentHabit?.streaks.sort(
+                        (x, y) => y.length_ - x.length_,
+                      )?.[0]?.end,
+                    ).format("l")})`}
+                  </div>
                 </div>
                 <div className="between mt-3">
                   <div className="d-flex my-auto">

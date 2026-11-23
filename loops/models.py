@@ -1,6 +1,7 @@
 import datetime
 from calendar import Calendar
 
+import click
 from flask_login import UserMixin
 
 from . import db
@@ -105,16 +106,42 @@ class Habit(db.Model):
                 current_streak_length += 1
                 current_streak_value = data[i]
             else:
-                streaks.append(current_streak_length)
+                streaks.append(
+                    {
+                        "length_": current_streak_length,
+                        "start": current_streak_value.entry_date.strftime(
+                            "%a %b %d %Y"
+                        ),
+                        "end": (
+                            current_streak_value.entry_date
+                            + datetime.timedelta(days=current_streak_length - 1)
+                        ).strftime("%a %b %d %Y"),
+                        # "entries": current_streak_value.to_dict(),
+                    }
+                )
                 current_streak_value = data[i]
                 current_streak_length = 1
 
         if current_streak_length > 1:
-            streaks.append(current_streak_length)
+            streaks.append(
+                {
+                    "length_": current_streak_length,
+                    "start": current_streak_value.entry_date.strftime("%a %b %d %Y"),
+                    "end": (
+                        current_streak_value.entry_date
+                        + datetime.timedelta(days=current_streak_length - 1)
+                    ).strftime("%a %b %d %Y"),
+                }
+            )
 
-        sorted_ = sorted([i for i in streaks if i > 1], key=lambda g: g, reverse=True)
+        # click.secho(streaks, fg="blue")
+        sorted_ = sorted(
+            [i for i in streaks if i.get("length_") > 1],
+            key=lambda g: g.get("length_"),
+            reverse=True,
+        )
         if len(sorted_) > 0:
-            return sorted_[0]
+            return sorted_
         else:
             return None
 
