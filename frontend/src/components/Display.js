@@ -199,12 +199,8 @@ export default function Display() {
 
                   {multiCtx.currentHabit?.streaks.length > 0 && (
                     <div className="my-auto">
-                      <Icon_
-                        inline
-                        icon="boxicons:crown-filled"
-                        className="me-2"
-                      />
-                      Highest Streak:{" "}
+                      <Icon_ inline icon="bi:fire" className="me-2" />
+                      Peak:{" "}
                       {
                         multiCtx.currentHabit?.streaks.sort(
                           (x, y) => y.length_ - x.length_,
@@ -214,11 +210,11 @@ export default function Display() {
                         multiCtx.currentHabit?.streaks.sort(
                           (x, y) => y.length_ - x.length_,
                         )?.[0]?.start,
-                      ).format("M/D/YY")} - ${moment(
+                      ).format("M/D")} - ${moment(
                         multiCtx.currentHabit?.streaks.sort(
                           (x, y) => y.length_ - x.length_,
                         )?.[0]?.end,
-                      ).format("M/D/YY")})`}
+                      ).format("M/D")})`}
                     </div>
                   )}
                 </div>
