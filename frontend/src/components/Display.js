@@ -239,6 +239,16 @@ export default function Display() {
                       text="90"
                       onClick={() => multiCtx.setLimit(90)}
                     />
+                    <Button
+                      active={multiCtx.limit === 180}
+                      text="180"
+                      onClick={() => multiCtx.setLimit(180)}
+                    />
+                    <Button
+                      active={multiCtx.limit === 360}
+                      text="360"
+                      onClick={() => multiCtx.setLimit(360)}
+                    />
                   </div>
                 </div>
 
